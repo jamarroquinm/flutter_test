@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';   //*1*
@@ -29,6 +28,8 @@ import 'package:url_launcher/url_launcher.dart';  //*3*
         de validación en este ejercicio se hace una verificación posterior del
         input; si no es numérico o es negativo se usa 0
    *6*  Se simula un hiperlink cachando el tap sobre un texto y usando url_launcher
+   *7*  factory se usa para devolver una instancia que no necesariamente se está
+        creando; podria devolver una del caché o la instancia de una subclase
 
 
   Clases
@@ -174,7 +175,6 @@ class RequestSender extends StatelessWidget {
     }
 
     PostHolder post;
-    String errorMessage;
 
     try{
       post = PostHolder.fromJson(json.decode(snapshot.data));
@@ -295,7 +295,8 @@ class PostHolder {
     this.parts,
     this.descendants});
 
-  factory PostHolder.fromJson(Map<String, dynamic> json) {
+  //deserialización
+  factory PostHolder.fromJson(Map<String, dynamic> json) {  //*7*
     return PostHolder(
       id: json['id'],
       deleted: json['deleted'],
@@ -314,6 +315,26 @@ class PostHolder {
       descendants: json['descendants'],
     );
   }
+
+  //serialización
+  Map<String, dynamic> toJson() =>
+      {
+        'id': id,
+        'deleted': deleted,
+        'type': type,
+        'by': by,
+        'time': time,
+        'text': text,
+        'dead': dead,
+        'parent': parent,
+        'poll': poll,
+        'kids': kids,
+        'url': url,
+        'score': score,
+        'title': title,
+        'parts': parts,
+        'descendants': descendants,
+      };
 }
 
 

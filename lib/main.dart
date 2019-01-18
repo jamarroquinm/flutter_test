@@ -4,6 +4,22 @@ import 'LayoutsBuilder.dart';
 import 'BasicNavigation.dart';
 import 'NavigationTree.dart';
 import 'SimpleWebServiceInvoker.dart';
+import 'BackgroundJson.dart';
+
+
+/*
+********************************************************************************
+El proyecto actual incluye varias pequeñas aplicaciones de aprendizaje
+Cada aplicación se encuentra completa en un archivo dart en la carpeta lib;
+para probar alguna debe descomentarse la línea void main()... correspondiente
+en este mismo archivo.
+NOTA: solo puede haber un main() activo a la vez
+
+El proyecto puede verse actualizado en
+https://github.com/jamarroquinm/flutter_test
+********************************************************************************
+*/
+
 
 //Primer ejercicio de aprendizaje: lista infinita de nombres seleccionables
 //void main() => runApp(StartupNamerApp());
@@ -42,5 +58,9 @@ void main() {
 */
 
 //Consumo de un webservice y display directo del json recuperado
-void main() => runApp(InvokerStarter());
+//void main() => runApp(InvokerStarter());
+
+
+//Consumo de un webservice en segundo plano
+void main() => runApp(GetPostWSStarter());
 
