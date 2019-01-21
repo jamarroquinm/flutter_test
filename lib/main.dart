@@ -5,6 +5,7 @@ import 'BasicNavigation.dart';
 import 'NavigationTree.dart';
 import 'SimpleWebServiceInvoker.dart';
 import 'BackgroundJson.dart';
+import 'RadialMenu.dart';
 
 
 /*
@@ -62,5 +63,9 @@ void main() {
 
 
 //Consumo de un webservice en segundo plano
-void main() => runApp(GetPostWSStarter());
+//void main() => runApp(GetPostWSStarter());
+
+
+//Consumo de un webservice en segundo plano
+void main() => runApp(RadioMenuStarter());
 
