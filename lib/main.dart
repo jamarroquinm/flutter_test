@@ -5,7 +5,7 @@ import 'BasicNavigation.dart';
 import 'NavigationTree.dart';
 import 'SimpleWebServiceInvoker.dart';
 import 'BackgroundJson.dart';
-import 'RadialMenu.dart';
+import 'RadialMenuTest.dart';
 
 
 /*
@@ -67,5 +67,18 @@ void main() {
 
 
 //Consumo de un webservice en segundo plano
-void main() => runApp(RadioMenuStarter());
+void main() {
+  runApp(MaterialApp(
+    title: 'RadialMenu Test',
+    //home: FirstRoute(),  //no incluir home cuando hay named routes
+    routes: {
+      '/': (context) => RadialMenuTestStarter(),
+      '/homepage': (context) => MyHomePage(),
+      '/section1': (context) => FirstPage(),
+      '/section2': (context) => SecondPage(),
+      '/section3': (context) => ThirdPage(),
+    },
+
+  ));
+}
 

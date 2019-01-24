@@ -5,18 +5,71 @@ import 'package:learning_flutter/RadialMenu/geometry.dart';
 import 'dart:math';
 import 'dart:ui';
 import 'dart:async';
-import 'Components.dart';
+import 'RadialMenu.dart';
 
 
-//Esta clase y su state trazan el menú completo en sí
+/*
+  **************************************************************************************
+  Basado en "Flutter Challenge: Radial Menu" https://www.youtube.com/watch?v=HjVaMxONcFw
+  **************************************************************************************
+
+  Este archivo incluye las clases complementarias del menú radial; ver comentarios
+  en el archivo RadialMenu.dart
+
+
+  Clases:
+  -------
+  - RadialMenu y _RadialMenuState trazan finalmente el menú en pantalla y definen
+    las animaciones de cada elemento según su estado
+  - RadialMenuController: Es la encargada de controlar los estados del menú y
+    donde se registran los listeners que permitirán notificar si un ítem ha sido
+    seleccionado; con esa notificación se determinará el id del ítem y se podrá
+    ejecutar la función asociada
+  - IconBubble: Compone el icono circular de cada ítem del menú
+  - PolarPosition: Traza cada uno de los ítemes con coordenadas polares
+  - ActivationPainter: Traza el anillo o ribbon animado que se muestra cuando se
+    ha seleccionado un ítem
+  - RadialMenuState: Es la enumeración de los estados posibles del menú:
+      closed:     nada que mostrar
+      closing:    para ir de open a closed
+      opening:    para de closed a open
+      open        el botón central es visible
+      expanding   inicia expansión
+      expanded    todos los ítemes son visibles
+      collapsing  inicia colapso para terminar en open
+      activating  se ejecuta la animación
+      dissipating el arco se cierra y hace fade out terminando en open
+
+
+  Notas:
+  *1* Cambiando la variable que recibe el Timer en el initState de _RadialMenuState
+  se acelera o retrasa la aparición inicial del menú; esto es necesario porque
+  al principio no hay cambios de estado, asi que se simula su apertura
+  *2* El menú consta de estos elementos:
+    - un botón central que hace fade out, fade in y gira cuando cambia de estado
+    - Los ítemes (bubbles o iconos) que rodean el botón central; aparecen cuando
+      el botón central se ha seleccionado y desaparecen cuando un ítem de ellos
+      se ha seleccionado
+    - El anillo o ribbon que aparece al seleccionar un ítem, se expande y luego
+      hace fade out
+    - La animación del ítem seleccionado, que sigue el path del anillo y luego
+      desaparece con él
+  *3* Es posible cambiar la duración de las animaciones y cambios de estados
+  haciendo las modificaciones correspondientes en la clase RadialMenuController,
+  en los siguientes métodos:
+    - _onTransitionComplete()
+    - open()
+    - close()
+    - expand()
+    - collapse()
+    - activate()
+*/
+
 class RadialMenu extends StatefulWidget{
   final Menu menu;
   final Offset anchor;
   final double radius;
-
-  //la siguiente propiedad permite que el menú pueda ser un arco parcial
   final Arc arc;
-
   final Function(String menuItemId) onSelected; //el listener
 
   RadialMenu({
@@ -24,8 +77,8 @@ class RadialMenu extends StatefulWidget{
     this.anchor,
     this.radius = 75.0,
     this.arc = const Arc(
-        from: Angle.fromRadians(-pi / 2), //en el top
-        to: Angle.fromRadians(3 * pi / 2) //un círculo completo
+        from: Angle.fromRadians(-pi / 2),
+        to: Angle.fromRadians(3 * pi / 2)
     ),
     this.onSelected,
   });
@@ -39,6 +92,9 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   static const Color openBubbleColor = const Color(0xFFAAAAAA);
   static const Color expandedBubbleColor = const Color(0xFF666666);
 
+  //tiempo en milisegundos para presentar el menú la primera vez
+  final int _initialOpenTime = 500;
+
   @override
   void initState() {
     super.initState();
@@ -48,9 +104,8 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
       ..addListener(() => setState(() {}))
       ..addSelectionListener(widget.onSelected);
 
-    //como todavía no hay forma de cambiar de estado, con un timer lo hacemos manualmente
     Timer(
-        Duration(seconds: 2), () {_menuController.open();}
+        Duration(milliseconds: _initialOpenTime), () {_menuController.open();} //*1*
     );
   }
 
@@ -381,7 +436,7 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {  //*2*
     return Stack(
       children: buildRadialBubbles()
         ..addAll([
@@ -391,4 +446,255 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
         ]),
     );
   }
+}
+
+
+class RadialMenuController extends ChangeNotifier {
+  final AnimationController _progress;          //mantiene el paso entre estados
+  RadialMenuState _state = RadialMenuState.closed;  //estado actual
+  String _activationId;   //el ítem particular sobre el que el usuario hace tap
+
+  /*
+    se crea un arreglo de listeners para cachar cuando ha terminado la
+    activación de cada uno de los ítemes al elegirlo, con el cual, se puede
+    determinar el ítem seleccionado y realizar la tarea relacionada con él
+  */
+  Set<Function(String menuItemId)> _onSelectedLiesteners;
+
+  RadialMenuController({@required TickerProvider vsync})
+      : _progress = AnimationController(vsync: vsync),
+        _onSelectedLiesteners = Set()
+  {
+    _progress
+      ..addListener(_onProgressUpdate)
+      ..addStatusListener((AnimationStatus status) {
+        if(status == AnimationStatus.completed){
+          _onTransitionComplete();
+        }
+      });
+  }
+
+  //para registrar los listeners
+  void addSelectionListener(Function(String menuItemId) onSelected){
+    if(onSelected != null){
+      _onSelectedLiesteners.add(onSelected);
+    }
+  }
+
+  //para eliminar listeners
+  void removeSelectionListener(Function(String menuItemId) onSelected){
+    _onSelectedLiesteners.remove(onSelected);
+  }
+
+  //para notificar a los listeners
+  void _notifySelectionListeners(){
+    _onSelectedLiesteners.forEach((listener) {
+      listener(_activationId);
+    });
+  }
+
+  //para prevenir memory leaks
+  @override
+  void dispose() {
+    _onSelectedLiesteners.clear();
+    super.dispose();
+  }
+
+  //este método se ejecuta en cada frame de la animación
+  void _onProgressUpdate(){
+    notifyListeners();
+  }
+
+  //el método solo se ejecuta cuando una animación se ha completado
+  void _onTransitionComplete(){
+    switch(_state){
+      case RadialMenuState.closing:
+        _state = RadialMenuState.closed;
+        break;
+      case RadialMenuState.opening:
+        _state = RadialMenuState.open;
+        break;
+      case RadialMenuState.expanding:
+        _state = RadialMenuState.expanded;
+        _progress.duration = Duration(milliseconds: 500);
+        _progress.forward(from: 0.0);
+        break;
+      case RadialMenuState.collapsing:
+        _state = RadialMenuState.open;
+        break;
+      case RadialMenuState.activating:
+        _state = RadialMenuState.dissipating;
+        _progress.duration = Duration(milliseconds: 500);
+        _progress.forward(from: 0.0);
+        break;
+      case RadialMenuState.dissipating:
+        _notifySelectionListeners();
+        _activationId = null;
+        _state = RadialMenuState.open;
+        break;
+      case RadialMenuState.closed:
+      case RadialMenuState.open:
+      case RadialMenuState.expanded:
+      //throw Exception('Invalid state during the transition: $_state');
+        break;
+    }
+
+    notifyListeners();
+  }
+
+  RadialMenuState get state => _state;
+  double get progress => _progress.value;
+  String get activationId => _activationId;
+
+  //pasar open solo tiene sentido si el estado actual es closed
+  void open(){
+    if(_state == RadialMenuState.closed){
+      _state = RadialMenuState.opening;
+      _progress.duration = Duration(milliseconds: 500);
+      _progress.forward(from: 0.0);
+      notifyListeners();
+    }
+  }
+
+  //pasar closed solo tiene sentido si el estado actual es open
+  void close(){
+    if(_state == RadialMenuState.open){
+      _state = RadialMenuState.closing;
+      _progress.duration = Duration(milliseconds: 250);
+      _progress.forward(from: 0.0);
+      notifyListeners();
+    }
+  }
+
+  //solo se pasa a expand si actualmente se está en open
+  void expand(){
+    if(_state == RadialMenuState.open){
+      _state = RadialMenuState.expanding;
+      _progress.duration = Duration(milliseconds: 150);
+      _progress.forward(from: 0.0);
+      notifyListeners();
+    }
+  }
+
+  //pasar collapse solo tiene sentido si el estado actual es expanded
+  void collapse(){
+    if(_state == RadialMenuState.expanded){
+      _state = RadialMenuState.collapsing;
+      _progress.duration = Duration(milliseconds: 150);
+      _progress.forward(from: 0.0);
+      notifyListeners();
+    }
+  }
+
+  //solo se pasa a activating si actualmente se está en expanded
+  void activate(String menuItemId){
+    if(_state == RadialMenuState.expanded){
+      _activationId = menuItemId;
+      _state = RadialMenuState.activating;
+      _progress.duration = Duration(milliseconds: 500);
+      _progress.forward(from: 0.0);
+      notifyListeners();
+    }
+  }
+}
+
+
+class IconBubble extends StatelessWidget {
+  final IconData icon;
+  final double diameter;
+  final Color iconColor;
+  final Color bubbleColor;
+  final VoidCallback onPressed;
+
+  IconBubble({this.icon, this.diameter, this.iconColor,
+    this.bubbleColor, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: diameter,
+        height: diameter,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: bubbleColor,
+        ),
+        child: Icon(
+          icon,
+          color: iconColor,
+        ),
+      ),
+    );
+  }
+}
+
+
+class PolarPosition extends StatelessWidget {
+  final Offset origin;
+  final PolarCoord coord;
+  final Widget child;
+
+  PolarPosition({this.origin = const Offset(0.0, 0.0), this.coord, this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final radialPosition = Offset(
+        origin.dx + (cos(coord.angle) * coord.radius),
+        origin.dy + (sin(coord.angle) * coord.radius)
+    );
+
+    return CenterAbout(
+      position: radialPosition,
+      child: child,
+    );
+  }
+}
+
+
+class ActivationPainter extends CustomPainter{
+  final double radius;
+  final double thickness;
+  final Color color;
+  final double startAngle;
+  final double endAngle;
+  final Paint activationPaint;
+
+  ActivationPainter({this.radius, this.thickness, this.color,
+    this.startAngle, this.endAngle}) : activationPaint = Paint()
+    ..color = color
+    ..strokeWidth = thickness
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round;
+
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawArc(
+        Rect.fromLTWH(-radius, -radius, radius * 2, radius * 2),
+        startAngle,
+        endAngle - startAngle,
+        false,
+        activationPaint
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+
+}
+
+
+enum RadialMenuState{
+  closed,       //nada que mostrar
+  closing,      //para ir de open a closed
+  opening,      //para de closed a open
+  open,         //el botón central es visible
+  expanding,    //inicia expansión
+  expanded,     //todos los ítemes son visibles
+  collapsing,   //inicia colapso para terminar en open
+  activating,   //se ejecuta la animación
+  dissipating,  //el arco se cierra y hace fade out terminando en open
 }

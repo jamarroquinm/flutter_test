@@ -26,7 +26,7 @@ import 'package:flutter/material.dart';
    - La clase Login es la principal, invocada desde main(), solo tiene el botón "Entrar"
    - La clase HomePage, con route '/homepage', juega el papel de menú principal
      . al estar en esta route el stack siempre la tiene como único elemento
-     . al elegir emtrar a una sección se cambia en sl stack el homepage por la
+     . al elegir entrar a una sección se cambia en sl stack el homepage por la
        nueva ruta usando pushReplacementNamed(), de modo que siga habiendo solo un
        elemento
      . con esta mecánica se garantiza que no haya back en el homepage o en las
@@ -35,7 +35,7 @@ import 'package:flutter/material.dart';
      el nuevo destino
    - Las clases Section1, Section2 y Section3 representan la pantalla inicial de
      cada sección
-   - Las clases Secion1a, Secion1b, etc. represemtan las subsecciones
+   - Las clases Seccion1a, Secion1b, etc. representan las subsecciones
    - Dado que todas las clases Sectionx y Sectionxx tienen la misma estructura se
      dejó agregó el método getSectionScaffold() para crear el layout de cada una y
      getScaffoldEnd() para el layout de la última pantalla de cada sección

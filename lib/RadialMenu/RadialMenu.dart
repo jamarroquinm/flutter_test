@@ -1,18 +1,129 @@
 import 'package:flutter/material.dart';
-import 'package:fluttery/animations.dart';
-import 'package:learning_flutter/RadialMenu/geometry.dart';
-import 'package:learning_flutter/RadialMenu/radial_menu_collisions.dart';
+import 'package:fluttery/animations.dart'; //*1*
+import 'package:fluttery/layout.dart'; //*1*
+import 'package:learning_flutter/RadialMenu/geometry.dart'; //*2*
+import 'package:learning_flutter/RadialMenu/radial_menu_collisions.dart'; //*2*
 import 'dart:math';
-//import 'dart:ui';
-//import 'dart:async';
-import 'Components.dart';
-import 'RegularRadialMenu.dart';
+import 'RadialMenuInplementer.dart';  //*3*
 
 /*
-  esta clase y _CollidingRadialMenuState manejan los menús en los bordes para no
-   rebasarlos y sustituyen a RadialMenu y _RadialMenuState
+  **************************************************************************************
+  Basado en "Flutter Challenge: Radial Menu" https://www.youtube.com/watch?v=HjVaMxONcFw
+  **************************************************************************************
+
+  El componente crea menús radiales en ubicaciones variables de la pantalla. El
+  menú consiste en un botón central que, al hacer tap sobre él, hace aparecer
+  a su alrededor una serie de botones que son los ítemes del menú. Al elegir un
+  ítem desaparecen todos los demás bajo un anillo animado que abarca el menú y
+  luego se disuelve y en seguida se ejecutan acciones definidas previamente.
+  Los menús ubicados junto a alguno de los bordes o en las esquinas se autoajustan
+  para no rebasar los bordes de la pantalla.
+
+  Los elementos variables del menú son:
+    - Ubicación. En la clase que llame a este componente se crea un widget que se
+      pasa en los parámetros y el código lo usará para determinar las coordenadas
+      del centro del menú, imprimiéndolo sobre el widget enviado
+    - Ítemes: La cantidad y apariencia de cada ítem puede cambiarse si bien su
+      tamaño actual por ahora es fijo
+    - Acción al seleccionar un ítem: Para esta acción se pasa una función como
+      parámetro, de modo que la ejecución es enteramente variable
+
+  Parámetros
+  ----------
+  menu: conjunto de ítemes del menú de tipo MenuItem, compuestos por
+    - id: cadena única para identificar el ítem cuando sea seleccionado
+    - icon: IconData que se mostrará al usuario
+    - bubbleColor: color de fondo
+    - iconColor: color del icono
+  radius: radio del círculo o arco que abarca el menú
+  startAngle: ángulo en radianes donde inicia el círculo o arco y donde aparece
+    el primer ítem; -pi/2 (90 grados) es el punto superior al centro
+  endAngle: ángulo en radianes donde termina el círculo o arco y donde aparece
+    el último ítem (si es un círculo, primero y último son el mismo item); para
+    un circulo completo se usa 3*(pi/2) o 2*pi-(pi/2)
+  child: widget que se usa como referencia para determinar la posición final del
+    menú usando las coordenadas de dicho child como centro; en otras palabras,
+    ésta es la manera indirecta de definir dónde se quiere ubicar el menú
+  onSelected: función que se ejecutará cuando un ítem haya sido seleccionado, su
+    parámetro itemId es el id del MenuItem
+
+  Clases:
+  -------
+  - AnchoredRadialMenu: ubica el menú en su posición y en una capa sobre lo demás
+    en pantalla; recibe un widget (child) que usará como referencia para
+    determinar la posición
+  - _AnchoredRadialMenuState: Crea una instancia de AnchoredOverlay la que, a
+    partir del child de AnchoredRadialMenu la posición de dicho widget (su anchor)
+    y justo sobre su centro, en el overlay, imprime una instancia de
+    _CollidingRadialMenu
+  - _CollidingRadialMenu recibe los parámetros finales para imprimir el menu
+  - _CollidingRadialMenuState realiza los cálculos para determinar cómo se
+    mostrará el menú. En caso de que la posición implique rebasar los límites de
+    la pantalla calcula un nuevo arco y la posición angular de cada ítem. Además,
+    siempre a partir de la posición y el tamaño angular final, calcula la apertura
+    del anillo y la dirección en la que debe expandirse
+
+
+  Notas:
+  *1* Para prototipar en el video se usa fluttery; como el paquete original en su
+  versión actual (0.0.7) no es compatible con Dart 2.0, el código fuente se
+  copió a una carpeta local y luego se cambió su yaml para que admita Dart 2.0
+  *2* Del mismo autor se usan directamente (no como librería externa) geometry.dart
+  y radial_menu_collisions.dart para facilitar el manejo de ángulos y el cálculo
+  de colisiones del menú con los bordes de la pantalla
+  *3* Ver la segunda parte de la funcionalidad en el archivo RadialMenuInplementer.dart
+
 */
-class CollidingRadialMenu extends StatefulWidget {
+
+
+class AnchoredRadialMenu extends StatefulWidget{
+  final Menu menu;
+  final double radius;
+  final double startAngle;
+  final double endAngle;
+  final Widget child;
+  final bool showOverlay;
+  final Function(String menuItemId) onSelected;
+
+  AnchoredRadialMenu({
+    this.menu,
+    this.radius = 75.0,
+    this.startAngle = -pi / 2,
+    this.endAngle = 3 * pi / 2,
+    this.child,
+    this.showOverlay = true,
+    this.onSelected});
+
+  @override
+  State createState() => _AnchoredRadialMenuState();
+}
+
+class _AnchoredRadialMenuState extends State<AnchoredRadialMenu>{
+
+  @override
+  Widget build(BuildContext context) {
+    return AnchoredOverlay(   //parte de fluttery que ubica el widget overlay
+        showOverlay: widget.showOverlay,
+        child: widget.child,
+        overlayBuilder: (BuildContext context, Rect rect, Offset anchor) {
+          //todo aquí puede usarse RadialMenu
+          return _CollidingRadialMenu(
+            menu: widget.menu,
+            radius: widget.radius,
+            arc: Arc(
+              from: Angle.fromRadians(widget.startAngle),
+              to: Angle.fromRadians(widget.endAngle),
+              direction: RadialDirection.clockwise,
+            ),
+            anchor: anchor,
+            onSelected: widget.onSelected,
+          );
+        }
+    );
+  }
+}
+
+class _CollidingRadialMenu extends StatefulWidget {
   final Menu menu;
   final Offset anchor;
   final double radius;
@@ -21,7 +132,7 @@ class CollidingRadialMenu extends StatefulWidget {
   final void Function(String itemId) onSelected;
   final Widget child;
 
-  CollidingRadialMenu({
+  _CollidingRadialMenu({
     this.menu,
     this.anchor,
     this.radius = 75.0,
@@ -39,7 +150,7 @@ class CollidingRadialMenu extends StatefulWidget {
   _CollidingRadialMenuState createState() => new _CollidingRadialMenuState();
 }
 
-class _CollidingRadialMenuState extends State<CollidingRadialMenu> {
+class _CollidingRadialMenuState extends State<_CollidingRadialMenu> {
   Arc radialArc;
 
   void _findNonCollidingArc(BoxConstraints constraints) {
@@ -267,3 +378,21 @@ class _CollidingRadialMenuState extends State<CollidingRadialMenu> {
     );
   }
 }
+
+//Un holder de las propiedades de cada ítem del menú
+class MenuItem {
+  final String id;
+  final IconData icon;
+  final Color bubbleColor;
+  final Color iconColor;
+
+  MenuItem({this.id, this.icon, this.bubbleColor, this.iconColor});
+}
+
+//El agrupador de ítemes del menú
+class Menu{
+  final List<MenuItem> items;
+
+  Menu({this.items});
+}
+
