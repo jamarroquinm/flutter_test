@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'StartupNamer.dart';
-import 'LayoutsBuilder.dart';
-import 'BasicNavigation.dart';
-import 'NavigationTree.dart';
-import 'SimpleWebServiceInvoker.dart';
-import 'BackgroundJson.dart';
-import 'RadialMenuTest.dart';
+//import 'StartupNamer.dart';
+//import 'LayoutsBuilder.dart';
+//import 'BasicNavigation.dart';
+//import 'NavigationTree.dart';
+//import 'SimpleWebServiceInvoker.dart';
+//import 'BackgroundJson.dart';
+//import 'RadialMenuTest.dart';
+import 'package:learning_flutter/Integracion1/Login.dart' as int1;
 
 
 /*
@@ -67,6 +68,7 @@ void main() {
 
 
 //Consumo de un webservice en segundo plano
+/*
 void main() {
   runApp(MaterialApp(
     title: 'RadialMenu Test',
@@ -81,4 +83,19 @@ void main() {
 
   ));
 }
+*/
 
+
+//Ejercicio de integración de las prueba de los elementos anteriores y otras
+void main() {
+  runApp(MaterialApp(
+    title: 'Integración versión 1',
+    theme: ThemeData(
+      primarySwatch: Colors.deepOrange,
+      primaryColor: const Color(0xFFff5722),
+      accentColor: const Color(0xFFff5722),
+      canvasColor: const Color(0xFFffffff),
+    ),
+    home: int1.LoginRoute(),
+  ));
+}
