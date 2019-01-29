@@ -1,0 +1,231 @@
+Fuentes
+-------
+
+Las siguientes notas y la aplicación de ejercicio están basadas mayormente en
+https://medium.com/flutter-community/flutter-login-tutorial-with-flutter-bloc-ea606ef701ad
+https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/
+
+Ver también https://felangel.github.io/bloc/#/
+y un ejemplo de pruebas en https://medium.com/flutter-community/unit-testing-with-bloc-b94de9655d86
+
+
+
+Sobre BLoC
+----------
+
+BLoC es un patrón cuyo acrónimo significa Business Logic Components. Fue diseñado por Paolo Soares y
+Cong Hui, de Google, quienes lo presentaron por primera vez a principios del 2018. Este patrón
+requiere que la totalidad de la lógica del negocio se traslade a uno o varios componentes llamados
+blocs (clases, funciones, etc.), que en la UI solo queden elementos de las interfases, que los flujos
+de datos dentro de la aplicación vayan exclusivamente en streams y que se mantenga independiente de
+plataforma y ambiente. Así, los Widgets envían eventos a los bloc mediante sink y son notificados por estos mediante stream
+sin tener nada que ver con la lógica del negocio.
+
+BLoC tiene al menos tres capas:
+    - Presentación o UI
+    - Lógica o bloc
+    - Backend
+
+La UI, además de consistir en los componentes gráficos que se presentan al usuario incluye todos
+los generadores de eventos, como botones, listas seleccionables, íconos cliclables, etc.
+Todos los eventos de esta capa son enviados al bloc. Adicionalmente la UI incluye listeners que
+esperan cambios de estado para actualizarse.
+
+El bloc es el conjunto de clases que se encargan de recibir un stream de eventos de las
+clases de la UI y transformarlos en un stream de estados que devuelve a la UI. Dicha transformación
+puede requerir async response que resultan de los async request que el bloc hace al backend
+
+La última capa podría dividirse en modelos y recursos o backend propiamente; en los
+modelos se incluirían la definición de los objetos que se formarán recurriendo a los recursos; por
+ejemplo un POJO en Modelos define los objetos Persona cuyos datos se llenan conectándose a una
+base de datos con las funciones que se encuentran en Recursos. Los modelos también incluyen las
+definiciones de eventos procesables y los estados resultantes posibles.
+
+En BLoC es clave el uso de streams porque es con ese mecanismo que los eventos y estados van y
+vienen.
+
+Para que esto funcione en Flutter es necesario que el bloc sea accesible siempre. Esto puede lograrse
+de una de tres maneras:
+- Con un singleton global, lo cual no se recomienda, entre otras cosas porque Dart no tiene un
+"destructor" y no se podrían liberar recursos apropiadamente.
+- Mediante una instancia local dentro de un StatefulWidget, recordando siempre incluir un dispose()
+que libere los recursos
+- Con una clase genérica de tipo StatefulWidget que al instanciarse expongan un bloc al subárbol de
+widgets; el bloc se recuperaría con BlocProvider.of<T>(context).
+
+Hay que agregar que es posible, incluso recomendable, tener varios blocs. Por ejemplo uno por cada
+pantalla, uno por la aplicación en general e incluso uno por cada componente de cierta complejidad.
+
+
+Streams
+-------
+
+Los streams son tuberías que conducen elementos desde un extremo al otro. Por lo general los streams
+en flutter son controlados con un StreamController el cual expone el extremo de entrada, conocido
+como StreamSink, mediante su propiedad sink y la salida con su propiedad stream. Un stream puede
+conducir cualquier tipo de dato: valores, objetos, errores, colecciones, etc.
+
+Para saber si un stream conduce algo se usa un listener y al hacerlo se recibe un StreamSubscription;
+a través de este último objeto se reciben las notificaciones cuando pasa algo por el stream. En cuanto
+el listener está activo el stream genera eventos que notifica al StreamSubscription activo cada vez
+que salen datos del stream, hay un error o el stream se cierra. Con esa suscripción también se puede
+dejar de escuchar, pausar o reanudar la escucha.
+
+Además de conducir elementos el stream también es capaz de transformarlos mediante un
+StreamTransformer, que no es otra cosa que una función que captura el elemento en el stream, hace
+algo con él y produce un resultado que es, a su vez, un stream. Es posible usar varios
+StreamTransformer en secuencia para filtrar, agrupar, modificar, inyectar o procesar datos o para
+hacer un buffer de ellos.
+
+Hay dos tipos de streams: los de suscripción única, que no permiten un segundo listener incluso si
+el primero se canceló, y los broadcast, a los que es posible agregar cualquier número de listeners.
+
+
+Transiciones
+------------
+
+Se denomina transición al paso de un estado a otro y consiste del estado actual, el evento disparado
+y el nuevo estado. Tratándose del paquete BlocBuilder (ver el apartado de RxDart a continuación) una
+forma de realizar una acción en respuesta a todas las transacciones en conjunto sería crear un
+delegado que herede de BBlocDelegate y agregarlo en main().
+
+
+RxDart y la programación reactiva
+---------------------------------
+
+La programación reactiva o Rx consiste en programar con flujos de datos asíncronos para lograr
+aplicaciones más flexibles, ligeramente acopladas (loosely-coupled) y escalables. En este paradigma
+cada elemento que puede cambiar o cada estado que puede ocurrir es transmitido vía stream. Por tanto
+toda la aplicación se vuelve asíncrona y se estructura a partir de streams y listeners; cuando algo
+pasa en algún punto se envía una notificación a un stream y si algún objeto está escuchando ese
+stream, entonces recibe también la notificación y puede realizar acciones sin importar dónde haya
+ocurrido el evento inicial.
+
+Con esta arquitectura se desacoplan los elementos de modo que cuando un widget envía algo por un
+stream, ya no requiere saber qué pasará a continuación ni quién, cuándo o cómo se usará su
+información pues solo es responsable de sus propias actividades, con lo que se puede modularizar
+la aplicación, reutilizar componentes o reordenarlos con mínimo refactoring.
+
+Los elementos fundamentales de este paradigma son tres: observables, secuencias o proveedores de datos,
+observadores, consumidores de las secuencias emitidas por el observable, y agendadores o
+schedulers, que son los administradores de subprocesos que le dicen a los dos anteriores en qué
+hilo correr. Como librería, ReactiveX aplica este paradigma.
+
+El Stream y el StreamController de Dart se llaman Observable y Subject en ReactiveX.
+
+RxDart es un paquete que implementa el API de ReactiveX para Dart, extiendo el concepto inicial de
+los streams de Dart para satisfacer los estándares de ReactiveX. RxDart ofrece tres variantes de
+StreamController:
+- PublishSubject es un broadcast que devuelve un Observable en lugar de un Stream y envía al
+  listener solo los eventos agregados al stream después de la suscripción
+- BehaviorSubject es similar PublishSubject pero a los eventos devueltos agrega el envío del último
+  evento previo a la suscripción
+- Finalmente el ReplaySubject es un broadcast que también devuelve un Observable en lugar de un
+  Stream pero que envía todos los eventos que se hayan generado
+
+Otra implementación, usada en este ejercicio es BlocBuilder, que ofrece una API simplificada de
+StreamBuilder.
+
+
+StreamBuilder
+-------------
+
+Se trata de un StatefulWidget de Flutter que escucha un Stream y cada vez que algo sale de este
+último realiza un rebuild automático haciendo una llamada a su builder. Al usarlo ya no es
+necesario recurrir al State; la ventaja es que con este mecanismo solo el StreamBuilder se actualiza
+mientras que con setState() se actualiza el widget completo, incluyendo los subwidgets. Sin embargo,
+para implementarlo se sigue usando un StatefulWidget para poder invocar un dispose que libere el
+StreamController.
+
+
+Acotación al trabajar solo con Flutter
+--------------------------------------
+
+Aplicar rigurosamente BLoC obliga a proceder por completo con streams y no usar getters ni setters,
+además de que cada intercambio de información sería asíncrono. Cuando se trata de una aplicación solo
+de Dart/Flutter lo anterior puede añadir complejidad innecesaria en algunos puntos. Por tanto, si
+no hay restricciones para el envío y recepción de datos y la ruta de BLoC se complica o se vuelve
+innecesariamente pesada, bien se puede seguir dependiendo de los getters y setters habituales mientras
+en otros puntos se recurre a streams.
+
+
+Sobre el ejemplo Integracion1
+-----------------------------
+
+Descripción. La aplicación prueba una pantalla de autenticación (Login) para que el usuario pueda entrar a la
+pantalla principal (homepage) desde donde puede entrar a la pantalla de búsquedas (SearchPage) y de
+ahí a la pantalla que muestra los detalles de sus selecciones (SelectorPage).
+
+Estructura. Los diferentes elementos se ubican en estos directorios o paquetes:
+    - backend es el paquete de clases que interactúan con los repositorios de datos
+        * SimpleBlocDelegate.dart es una sencilla implementación de un delegado que realiza una
+          acción en respuesta a cualquier transición que ocurra en la app; para ello esta clase se
+          instancia y registra en main()
+        * User.dart gestiona la recuperación de usuarios del repositorio a partir de su login y
+          contraseña
+
+    - blocs es el paquete de las clases bloc
+        * AuthenticationBloc convierte los eventos de autenticación en los estados correspondientes;
+          establece su estado inicial en AuthenticationUninitialized para de ahí proceder a
+          determinar si hay un usuario autenticado o no; su método mapEventToState es el que
+          transforma el evento recibido en el stream del nuevo estado
+        * blocs.dart define los export del paquete
+        * LoginBloc.dart transforma los eventos de ui\Login.dart en los estados que se devolverán
+          a esa misma pantalla. Tiene dependencias de models\UserRepository, para llevar a cabo la
+          autenticación del usuario, y AuthenticationBloc, para que se actualice el AuthenticationState
+          cuando el usuario introduzca credenciales válidas
+
+    - models es el paquete de clases que definen eventos y estados
+        * authentication.dart define los export de AuthenticationEvents.dart,
+          AuthenticationStates.dart y UserRepository.dart
+        * AuthenticationEvents.dart incluye una clase para cada uno de los tres eventos de
+          autenticación que pueden producirse:
+            a) AppStarted, se dispara al iniciarse la app para notificar al bloc que debe verificar
+               si hay un usuario autenticado
+            b) LoggedIn, se dispara cuando la autenticación ha sido exitosa para notificar al bloc
+               el usuario está autenticado
+            c) LoggedOut, se dispara cuando el logout ha sido exitoso para notificar al bloc que el
+               usuario ya no está autenticado
+        * AuthenticationStates.dart incluye una clase para cada uno de los cuatro estados de
+          autenticación posibles:
+            a) AuthenticationUninitialized, es el estado inicial de la aplicación, cuando no hay
+               usuario autenticado; podría presentarse un splash al usuario mientras la aplicación
+               determina si está ya autenticado o no
+            b) AuthenticationAuthenticated, producido cuando el usuario se autentiticó
+               exitosamente; el usuario entraría al Homepage
+            c) AuthenticationUnauthenticated, producido cuando el usuario no tuvo éxito al
+               autenticarse; el usuario permanecería en el Login
+            d) AuthenticationLoading, indica que la autenticación inició y está en proceso de
+               resolución; podría presentarse un indicador de avance
+        * login_model.dart define los export de LoginStates.dart y LoginEvents.dart
+        * LoginEvents.dart incluye la clase que modela el único evento de la pantalla de Login, que
+          el clic del botón; dicho evento notifica al bloc que deben validárselas credenciales
+          introducidas, es decir, nombre de usuario y contraseña
+        * LoginStates.dart incluye una clase para cada uno de los tres estados posibles en la
+          pantalla de Login;
+            a) LoginInitial, es el estado inicial de la aplicación, cuando no se ha hecho clic en el
+               botón de Login
+            b) LoginLoading, producido cuando el usuario hizo clic en el botón y la autenticación
+               está en proceso
+            c) LoginFailure, producido cuando la autenticación no tuvo éxito
+        * UserRepository.dart, recibe usuario y contraseña y con ambos datos lleva a cabo proceso de
+          validación recurriendo a backend\User.dart
+
+    - ui es el paquete de las interfases gráficas:
+        * HomePage.dart es la pantalla de aterrizaje cuando la autenticación fue exitosa; incluye
+          un campo de tipo AuthenticationBloc que es el bloc relacionado para que esta pantalla
+          envíe eventos al bloc y reciba de él estados. Dicho bloc se recupera mediante un
+          BlocProvider
+        * LoadingIndicator.dart simplemente muestra un indicador de avance mediante un
+          CircularProgressIndicator
+        * LoginForm.dart es el formulario de autenticación, dos campos y un botón, que incluye el
+          disparador del evento del clic del botón y el método para mostrar que hubo un error. Este
+          Widget se construye dentro del body de LoginPage por lo que esta clase le define los blocs
+          con los que se relaciona. Su BlocBuilder actualiza el formulario cuando hay un cambio en
+          su LoginState
+        * LoginPage.dart es la pantalla contenedora de LoginForm y además es la pantalla principal.
+          Crea una instancia de LoginBloc y gestiona su dispose
+        * SearchPage.dart... por desarrollar
+        * SelectorPage.dart... por desarrollar
+        * SplashPage.dart es el splash que se muestra mientras al inicio se determina si hay un
+          usuario autenticado o no

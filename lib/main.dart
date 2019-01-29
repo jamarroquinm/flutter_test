@@ -6,8 +6,12 @@ import 'package:flutter/material.dart';
 //import 'SimpleWebServiceInvoker.dart';
 //import 'BackgroundJson.dart';
 //import 'RadialMenuTest.dart';
-import 'package:learning_flutter/Integracion1/Login.dart' as int1;
+//import 'package:learning_flutter/Integracion1/Login.dart' as int1;
 
+import 'package:bloc/bloc.dart';
+import 'package:learning_flutter/Integracion1/App.dart';
+import 'package:learning_flutter/Integracion1/backend/SimpleBlocDelegate.dart';
+import 'package:learning_flutter/Integracion1/models/UserRepository.dart';
 
 /*
 ********************************************************************************
@@ -87,6 +91,7 @@ void main() {
 
 
 //Ejercicio de integración de las prueba de los elementos anteriores y otras
+/*
 void main() {
   runApp(MaterialApp(
     title: 'Integración versión 1',
@@ -98,4 +103,10 @@ void main() {
     ),
     home: int1.LoginRoute(),
   ));
+}
+ */
+
+void main() {
+  BlocSupervisor().delegate = SimpleBlocDelegate();
+  runApp(App(userRepository: UserRepository()));
 }

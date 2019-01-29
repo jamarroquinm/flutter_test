@@ -25,7 +25,7 @@ TODO revisar SafeArea
 */
 
 import 'package:flutter/material.dart';
-import 'package:learning_flutter/Integracion1/User.dart';
+import 'package:learning_flutter/Integracion1/backend/User.dart';
 
 class LoginRoute extends StatefulWidget {
   LoginRoute({Key key}) : super(key: key);

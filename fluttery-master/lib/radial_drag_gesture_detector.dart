@@ -23,47 +23,47 @@ class RadialDragGestureDetector extends StatefulWidget {
   });
 
   @override
-  _RadialDragGestureDetectorState createState() => new _RadialDragGestureDetectorState();
+  _RadialDragGestureDetectorState createState() => _RadialDragGestureDetectorState();
 }
 
 class _RadialDragGestureDetectorState extends State<RadialDragGestureDetector> {
-  _onPanStart(DragStartDetails details) {
+  void _onPanStart(DragStartDetails details) {
     if (null != widget.onRadialDragStart) {
-      final polarCoord = _polarCoordFromGlobalOffset(details.globalPosition);
+      final PolarCoord polarCoord = _polarCoordFromGlobalOffset(details.globalPosition);
       widget.onRadialDragStart(polarCoord);
     }
   }
 
-  _onPanUpdate(DragUpdateDetails details) {
+  void _onPanUpdate(DragUpdateDetails details) {
     if (null != widget.onRadialDragUpdate) {
-      final polarCoord = _polarCoordFromGlobalOffset(details.globalPosition);
+      final PolarCoord polarCoord = _polarCoordFromGlobalOffset(details.globalPosition);
       widget.onRadialDragUpdate(polarCoord);
     }
   }
 
-  _onPanEnd(DragEndDetails details) {
+  void _onPanEnd(DragEndDetails details) {
     if (null != widget.onRadialDragEnd) {
       widget.onRadialDragEnd();
     }
   }
 
-  _polarCoordFromGlobalOffset(globalOffset) {
+  PolarCoord _polarCoordFromGlobalOffset(Offset globalOffset) {
     // Convert the user's global touch offset to an offset that is local to
     // this Widget.
-    final localTouchOffset = (context.findRenderObject() as RenderBox).globalToLocal(globalOffset);
+    final Offset localTouchOffset = (context.findRenderObject() as RenderBox).globalToLocal(globalOffset);
 
     // Convert the local offset to a Point so that we can do math with it.
-    final localTouchPoint = new Point(localTouchOffset.dx, localTouchOffset.dy);
+    final Point<double> localTouchPoint = Point<double>(localTouchOffset.dx, localTouchOffset.dy);
 
     // Create a Point at the center of this Widget to act as the origin.
-    final originPoint = new Point(context.size.width / 2, context.size.height / 2);
+    final Point<double> originPoint = Point<double>(context.size.width / 2, context.size.height / 2);
 
-    return new PolarCoord.fromPoints(originPoint, localTouchPoint);
+    return PolarCoord.fromPoints(originPoint, localTouchPoint);
   }
 
   @override
   Widget build(BuildContext context) {
-    return new GestureDetector(
+    return GestureDetector(
       onPanStart: _onPanStart,
       onPanUpdate: _onPanUpdate,
       onPanEnd: _onPanEnd,
@@ -76,21 +76,21 @@ class PolarCoord {
   final double angle;
   final double radius;
 
-  factory PolarCoord.fromPoints(Point origin, Point point) {
+  PolarCoord(this.angle, this.radius);
+
+  factory PolarCoord.fromPoints(Point<double> origin, Point<double> point) {
     // Subtract the origin from the point to get the vector from the origin
     // to the point.
-    final vectorPoint = point - origin;
-    final vector = new Offset(vectorPoint.x, vectorPoint.y);
+    final Point<double> vectorPoint = point - origin;
+    final Offset vector = Offset(vectorPoint.x, vectorPoint.y);
 
     // The polar coordinate is the angle the vector forms with the x-axis, and
     // the distance of the vector.
-    return new PolarCoord(
+    return PolarCoord(
       vector.direction,
       vector.distance,
     );
   }
-
-  PolarCoord(this.angle, this.radius);
 
   @override
   toString() {

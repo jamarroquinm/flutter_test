@@ -36,7 +36,7 @@ import 'package:http/http.dart' as http;
 class GetPostWSStarter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final appTitle = 'Webservice GET y POST';
+    const String appTitle = 'Webservice GET y POST';
 
     return MaterialApp(
       title: appTitle,
@@ -70,7 +70,7 @@ class MainRouteState extends State<MainRoute>{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Text('Consumo de webservice'),
+        title: const Text('Consumo de webservice'),
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -78,9 +78,9 @@ class MainRouteState extends State<MainRoute>{
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: RaisedButton(
-                  child: Text('Descarga fotos'),
+                  child: const Text('Descarga fotos'),
                   onPressed: () {
                     _getPhotos = true;
                     _postData = false;
@@ -89,9 +89,9 @@ class MainRouteState extends State<MainRoute>{
                 ),
               ),
               Container(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: RaisedButton(
-                  child: Text('Post data'),
+                  child: const Text('Post data'),
                   onPressed: () {
                     _getPhotos = false;
                     _postData = true;
@@ -110,15 +110,15 @@ class MainRouteState extends State<MainRoute>{
     setState(() {
       if(_getPhotos){
         //abrir pantalla de fotos
-        Navigator.push(
+        Navigator.push<dynamic>(
           context,
-          MaterialPageRoute(builder: (context) => PhotoRoute(title: 'Galería',)),
+          MaterialPageRoute<dynamic>(builder: (context) => PhotoRoute(title: 'Galería',)),
         );
       } else if(_postData){
         //abrir pantalla de post
-        Navigator.push(
+        Navigator.push<dynamic>(
           context,
-          MaterialPageRoute(builder: (context) =>
+          MaterialPageRoute<dynamic>(builder: (context) =>
               PostRoute(
                 title: 'Carga de datos',
                 postSent: PostHolder(
@@ -150,7 +150,7 @@ class MainRouteState extends State<MainRoute>{
 class PhotoRoute extends StatelessWidget {
   final String title;
 
-  PhotoRoute({Key key, this.title}) : super(key: key);
+  const PhotoRoute({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -161,11 +161,13 @@ class PhotoRoute extends StatelessWidget {
       body: FutureBuilder<List<Photo>>(
         future: fetchPhotos(http.Client()),
         builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
+          if(snapshot.hasError){
+            print(snapshot.error);
+          }
 
           return snapshot.hasData
               ? PhotosList(photos: snapshot.data)
-              : Center(child: CircularProgressIndicator());
+              : const Center(child: CircularProgressIndicator());
         },
       ),
     );
@@ -181,12 +183,12 @@ class PhotoRoute extends StatelessWidget {
 class PhotosList extends StatelessWidget {
   final List<Photo> photos;
 
-  PhotosList({Key key, this.photos}) : super(key: key);
+  const PhotosList({Key key, this.photos}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
       ),
       itemCount: photos.length,
@@ -210,11 +212,11 @@ class Photo {
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
-      albumId: json['albumId'] as int,
-      id: json['id'] as int,
-      title: json['title'] as String,
-      url: json['url'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String,
+      albumId: int.parse(json['albumId']),
+      id: int.parse(json['id']),
+      title: json['title'].toString(),
+      url: json['url'].toString(),
+      thumbnailUrl: json['thumbnailUrl'].toString(),
     );
   }
 }
@@ -226,7 +228,7 @@ class Photo {
   parsePhotos() en un isolate
  */
 Future<List<Photo>> fetchPhotos(http.Client client) async {
-  final response =
+  final http.Response response =
   await client.get('https://jsonplaceholder.typicode.com/photos');
 
   return compute(parsePhotos, response.body); //*2*
@@ -271,7 +273,7 @@ class PostRoute extends StatelessWidget {
           return snapshot.hasError
             ? Text(snapshot.error.toString())
             :  snapshot.connectionState == ConnectionState.waiting
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : buildPostDisplay(snapshot, postSent);
         },
       ),
@@ -283,27 +285,27 @@ class PostRoute extends StatelessWidget {
     Widget result;
 
     if(snapshot.connectionState != ConnectionState.done){
-      result = Text('proceso sin concluir...');
+      result = const Text('proceso sin concluir...');
     }
 
     if (snapshot.hasError) {
       result = Text(
         '${snapshot.error}',
-        style: TextStyle(color: Colors.red),
+        style: const TextStyle(color: Colors.red),
       );
     } else if(snapshot.data == null){
-      result = Text('No data returned by server');
+      result = const Text('No data returned by server');
     }
 
-    PostHolder postResponseNew = snapshot.data as PostHolder;
-    if(postResponseNew.id == null){
-      result = Text('[No data returned by server]');
-    } else if(postResponseNew.id <= 0 ){
-      result = Text('[No valid id returned by server]');
+    PostHolder postResponse= snapshot.data as PostHolder;
+    if(postResponse.id == null){
+      result = const Text('[No data returned by server]');
+    } else if(postResponse.id <= 0 ){
+      result = const Text('[No valid id returned by server]');
     } else {
       result = Text(
-          'Id de nuevo registro: ${postResponseNew.id}',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+          'Id de nuevo registro: ${postResponse.id}',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       );
     }
 
@@ -318,15 +320,15 @@ class PostRoute extends StatelessWidget {
           ),
           Text(
             'título: ${postResponseSent.title}',
-            style: TextStyle(fontSize: 20.0),
+            style: const TextStyle(fontSize: 20.0),
           ),
           Text(
             'Cuerpo: ${postResponseSent.body}',
-            style: TextStyle(fontSize: 20.0),
+            style: const TextStyle(fontSize: 20.0),
           ),
           Text(
             'Id de usuario: ${postResponseSent.userId}',
-            style: TextStyle(fontSize: 20.0),
+            style: const TextStyle(fontSize: 20.0),
           ),
           SizedBox(height: 20.0),
           result,
@@ -344,19 +346,16 @@ class PostRoute extends StatelessWidget {
   estima y por lo mismo no recurre a un segundo método para parsear el json del
   response
  */
-Future<PostHolder> post(String url, var body)async{
+Future<PostHolder> post(String url, String body)async{
   return await http
-    .post(Uri.encodeFull(url), body: body, headers: {"Accept":"application/json"})
+    .post(Uri.encodeFull(url), body: body, headers: {'Accept':'application/json'})
     .then((http.Response response) {
       final int statusCode = response.statusCode;
       if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error while fetching data");
+        throw Exception('Error while fetching data');
       }
 
-      final jsonResponse  = json.decode(response.body);
-      PostHolder postResponse = PostHolder.fromJson(jsonResponse);
-
-      return postResponse;
+      return PostHolder.fromJson(json.decode(response.body));
     }
   );
 }

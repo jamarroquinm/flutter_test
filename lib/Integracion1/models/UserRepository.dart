@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+//TODO conectarse al repositorio vía User.dart
+
 //para manejar los datos del usuario autenticado
 class UserRepository {
   Future<String> authenticate({

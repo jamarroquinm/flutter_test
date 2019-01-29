@@ -20,7 +20,7 @@ class AnchoredOverlay extends StatelessWidget {
   final Widget child;
 
   AnchoredOverlay({
-    key,
+    Key key,
     this.showOverlay = false,
     this.overlayBuilder,
     this.child,
@@ -28,26 +28,26 @@ class AnchoredOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       // This LayoutBuilder gives us the opportunity to measure the above
       // Container to calculate the "anchor" point at its center.
-      child: new LayoutBuilder(
+      child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          return new OverlayBuilder(
+          return OverlayBuilder(
             showOverlay: showOverlay,
             overlayBuilder: (BuildContext overlayContext) {
               // To calculate the "anchor" point we grab the render box of
               // our parent Container and then we find the center of that box.
-              RenderBox box = context.findRenderObject() as RenderBox;
+              final RenderBox box = context.findRenderObject() as RenderBox;
               final topLeft = box.size.topLeft(box.localToGlobal(const Offset(0.0, 0.0)));
               final bottomRight = box.size.bottomRight(box.localToGlobal(const Offset(0.0, 0.0)));
-              final Rect anchorBounds = new Rect.fromLTRB(
+              final Rect anchorBounds = Rect.fromLTRB(
                 topLeft.dx,
                 topLeft.dy,
                 bottomRight.dx,
                 bottomRight.dy,
               );
-              final anchorCenter = box.size.center(topLeft);
+              final Offset anchorCenter = box.size.center(topLeft);
 
               return overlayBuilder(overlayContext, anchorBounds, anchorCenter);
             },
@@ -77,14 +77,14 @@ class OverlayBuilder extends StatefulWidget {
   final Widget child;
 
   OverlayBuilder({
-    key,
+    Key key,
     this.showOverlay = false,
     this.overlayBuilder,
     this.child,
   }) : super(key: key);
 
   @override
-  _OverlayBuilderState createState() => new _OverlayBuilderState();
+  _OverlayBuilderState createState() => _OverlayBuilderState();
 }
 
 class _OverlayBuilderState extends State<OverlayBuilder> {
@@ -125,7 +125,7 @@ class _OverlayBuilderState extends State<OverlayBuilder> {
   void showOverlay() {
     if (overlayEntry == null) {
       // Create the overlay.
-      overlayEntry = new OverlayEntry(
+      overlayEntry = OverlayEntry(
         builder: widget.overlayBuilder,
       );
       addToOverlay(overlayEntry);
@@ -136,7 +136,7 @@ class _OverlayBuilderState extends State<OverlayBuilder> {
   }
 
   void addToOverlay(OverlayEntry entry) async {
-    final overlay = Overlay.of(context);
+    final OverlayState overlay = Overlay.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) => overlay.insert(entry));
     //Overlay.of(context).insert(entry);
   }
