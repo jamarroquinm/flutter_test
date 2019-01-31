@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
-//import 'StartupNamer.dart';
-//import 'LayoutsBuilder.dart';
-//import 'BasicNavigation.dart';
-//import 'NavigationTree.dart';
-//import 'SimpleWebServiceInvoker.dart';
-//import 'BackgroundJson.dart';
-//import 'RadialMenuTest.dart';
-//import 'package:learning_flutter/Integracion1/Login.dart' as int1;
+/*
+import 'StartupNamer.dart';                           // *1*
+import 'LayoutsBuilder.dart';                         // *2*
+import 'BasicNavigation.dart';                        // *3*
+import 'NavigationTree.dart';                         // *4*
+import 'SimpleWebServiceInvoker.dart';                // *5*
+import 'BackgroundJson.dart';                         // *6*
+import 'RadialMenuTest.dart';                         // *7*
+import 'package:learning_flutter/Integracion1/Login.dart' as int1;              // *8*
+import 'package:bloc/bloc.dart';                                                // *9*
+import 'package:learning_flutter/Integracion1/App.dart';                        // *9*
+import 'package:learning_flutter/Integracion1/backend/SimpleBlocDelegate.dart'; // *9*
+import 'package:learning_flutter/Integracion1/models/UserRepository.dart';      // *9*
+import 'package:learning_flutter/DBBasics/main.dart'; // *10*
+*/
 
-import 'package:bloc/bloc.dart';
-import 'package:learning_flutter/Integracion1/App.dart';
-import 'package:learning_flutter/Integracion1/backend/SimpleBlocDelegate.dart';
-import 'package:learning_flutter/Integracion1/models/UserRepository.dart';
+import 'package:learning_flutter/DBBasics/mainBloc.dart'; // *11*
 
 /*
 ********************************************************************************
-El proyecto actual incluye varias pequeñas aplicaciones de aprendizaje
-Cada aplicación se encuentra completa en un archivo dart en la carpeta lib;
-para probar alguna debe descomentarse la línea void main()... correspondiente
-en este mismo archivo.
+El proyecto actual incluye varias pequeñas aplicaciones de aprendizaje, las
+primeras de las cuales se encuentran completa en un solo archivo dart en la
+carpeta lib mientras que las más complejas comprenden varios archivos en su
+propio package o directorio, todos subfolders de lib. Para probar cualquiera de
+ellas basta con descomentar el import y el main() correspondiente en este mismo
+archivo.
 NOTA: solo puede haber un main() activo a la vez
 
 El proyecto puede verse actualizado en
@@ -26,28 +32,25 @@ https://github.com/jamarroquinm/flutter_test
 ********************************************************************************
 */
 
-
-//Primer ejercicio de aprendizaje: lista infinita de nombres seleccionables
-//void main() => runApp(StartupNamerApp());
-
-
-//Construcción de un layout básico
-//void main() => runApp(LayoutsBuilderApp());
-
-
-//Navegación básica entre dos pantallas
 /*
+//Lista infinita de nombres seleccionables. Su import es *1*
+void main() => runApp(StartupNamerApp());
+
+
+//Construcción de un layout básico. Su import es *2*
+void main() => runApp(LayoutsBuilderApp());
+
+
+//Navegación básica entre dos pantallas. Su import es *3*
 void main() {
   runApp(MaterialApp(
     title: 'Navigation Basics',
     home: FirstRoute(),
   ));
 }
-*/
 
 
-//Navegación en un árbol de pantallas
-/*
+//Navegación en un árbol de pantallas. Su import es *4*
 void main() {
   runApp(MaterialApp(
     title: 'Navigation experiments',
@@ -61,18 +64,17 @@ void main() {
     },
   ));
 }
-*/
-
-//Consumo de un webservice y display directo del json recuperado
-//void main() => runApp(InvokerStarter());
 
 
-//Consumo de un webservice en segundo plano
-//void main() => runApp(GetPostWSStarter());
+//Consumo de un webservice y display del json recuperado. Su import es *5*
+void main() => runApp(InvokerStarter());
 
 
-//Consumo de un webservice en segundo plano
-/*
+//Consumo de un webservice en segundo plano. Su import es *6*
+void main() => runApp(GetPostWSStarter());
+
+
+//Implementación de un RadialMenu. Su import es *7*
 void main() {
   runApp(MaterialApp(
     title: 'RadialMenu Test',
@@ -87,11 +89,9 @@ void main() {
 
   ));
 }
-*/
 
 
-//Ejercicio de integración de las prueba de los elementos anteriores y otras
-/*
+//Primer intento de un autenticador con patrón BLoC. Su import es *8*
 void main() {
   runApp(MaterialApp(
     title: 'Integración versión 1',
@@ -104,9 +104,16 @@ void main() {
     home: int1.LoginRoute(),
   ));
 }
- */
 
+//Segundo intento del autenticador con BLoC. Sus import son *9*
 void main() {
   BlocSupervisor().delegate = SimpleBlocDelegate();
   runApp(App(userRepository: UserRepository()));
 }
+
+*/
+
+
+//Implementación de una DB con SQLite. Su import es *10* para la forma
+//convencional y *11* para la forma con el patrón BLoC
+void main() => runApp(MaterialApp(home: MyApp()));

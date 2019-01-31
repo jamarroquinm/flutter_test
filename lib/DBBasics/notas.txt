@@ -1,0 +1,95 @@
+Generalidades
+-------------
+
+En esta aplicación se prueba la implementación de SQLite para la persistencia de datos a partir del
+input del usuario; entrando a través de main.dart la aplicación funciona de manera convencional
+mientras que con mainBloc.dart, que recurre a las clases en la carpeta \lib\DBBasics\Blocs, se
+tiene la misma funcionalidad pero con el patrón BLoC. Está basado mayormente en
+https://medium.com/flutter-community/using-sqlite-in-flutter-187c1a82e8b
+
+
+Dependencias
+------------
+
+Dada la dependencia de sqflite y path_provider hay que agregar la última versión de estos paquetes a
+pubspec.yaml.
+- path_provider sirve para ubicar los directorios de más frecuente uso en el
+  filesystem; en el presente ejercicio ubica TemporaryDirectory y
+  ApplicationDocumentsDirectory
+- sqflite asiste en la gestión de una base de datos SQLite y permite operaciones CRUD con queries
+  explícitos o exponiendo métodos que, a partir de los parámetros recibidos, construyen internamente
+  los queries requeridos.
+
+
+Estructura y archivos
+---------------------
+
+- \backend\Database.dart. La base de datos se gestionará en esta archivo como singleton, para
+asegurar que se acceda siempre a la misma instancia.
+
+- La base de datos se denomina TestDB.db y consta solo de la tabla Client con cuatro campos:
+  * id, es la PK de tipo INTEGER
+  * first_name, cadena de tipo TEXT
+  * last_name, cadena de tipo TEXT
+  * blocked, bandera boleana que se guarda como INTEGER
+
+- \blocs\DatabaseBloc.dart es el bloc que sirve de puente entre mainBloc.dart y Database.dart.
+Recibe un stream de eventos de _MyAppState, ejecuta los métodos correspondientes de DBProvider y
+devuelve un stream en respuesta; en esta caso es la consulta de todos los registros de la base
+de datos para que se actualice la pantalla.
+
+- \models\ClientModel.dart. Define el modelo de datos mediante mapeo de un json con una instancia de
+la clase Client, exponiendo los métodos clientFromJson y clientToJson.
+
+- \main.dart. Define no solo el punto de entrada de la aplicación sino la UI. El widget principal del
+body es un FutureBuilder, usado para hacer la consulta a la base de datos. Dentro tiene un ListView
+para mostrar los registros recuperados de la base de datos y entonces se usa el widget Dismissible
+para cada ítem en particular con el fin de permitir que se eliminen registros arrastrándolos en la
+pantalla hacia fuera, incluye un checkbox que cuando se selecciona cambia la bandera blocked.
+El FAB agrega un arreglo predefinido de datos a la tabla Client.
+
+- \mainBloc.dart es similar al anterior excepto que recurre a DatabaseBloc.dart en lugar de conectarse
+directamente a la base de datos y además incluye tres botones más para probar otras acciones. La
+acción de insertar está en el botón "Agregar", la acción de borrar el último registro de la tabla
+Client está en el botón "Borrar último", la acción de borrar todos los registros de Client está en
+el botón "Borrar todos" y en el FAB está la acción de seleccionar la totalidad de registros.
+
+
+Operaciones CRUD
+----------------
+
+Create. Se utiliza rawInsert para inyectar un query explícito e insert para dejar que sqflite arme
+el query a partir del nombre de la tabla y el map de un objeto que coincide con la estructura de la
+tabla. Ver en la clase DBProvider (en Database.dart) el método newClient().
+
+  * Ejemplo de rawInsert:
+        newClient(Client newClient) async {
+            final db = await database;
+            var res = await db.rawInsert(
+              "INSERT Into Client (id, first_name) VALUES (${newClient.id}, ${newClient.firstName})"
+            );
+            return res;
+        }
+  * Ejemplo de insert
+        newClient(Client newClient) async {
+            final db = await database;
+            var res = await db.insert("Client", newClient.toMap());
+            return res;
+        }
+
+Read. Se usa rawQuery para inyectar un query explícito y query para dejar que sqflite arme el query;
+este último método puede recibir simplemente el nombre de la tabla o también aceptar, además, una
+sentencia where y un arreglo de argumentos en el parámetro whereArgs. Otros parámetros del método
+query son: distinct, columns, groupBy, having, orderBy, limit y offset.
+Ver en la clase DBProvider (en Database.dart) los métodos getClient(), getAllClients() y
+getBlockedClients().
+
+Update. El método rawUpdate permite usar un query explícito y opcionalmente una lista de argumentos,
+mientras que el método update construye el query a partir del nombre de la tabla, un objeto que se
+mapea a los campos de la tabla y, opcionalmente, una sentencia where y argumentos para ese where.
+Ver en la clase DBProvider (en Database.dart) los métodos updateClient() y blockOrUnblock().
+
+Delete. El método rawDelete permite usar un query explícito y opcionalmente una lista de argumentos,
+mientras que el método delete construye el query a partir del nombre de la tabla y, opcionalmente,
+una sentencia where y argumentos para ese where.
+Ver en la clase DBProvider (en Database.dart) los métodos deleteClient() y deleteAll().
