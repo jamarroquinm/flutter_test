@@ -5,6 +5,7 @@ import 'package:learning_flutter/Integracion1/blocs/AuthenticationBloc.dart';
 
 //pantalla principal a la que entra el usuario tras autenticarse
 class HomePage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final AuthenticationBloc authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);

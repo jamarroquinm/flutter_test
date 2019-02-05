@@ -13,9 +13,10 @@ import 'package:learning_flutter/Integracion1/App.dart';                        
 import 'package:learning_flutter/Integracion1/backend/SimpleBlocDelegate.dart'; // *9*
 import 'package:learning_flutter/Integracion1/models/UserRepository.dart';      // *9*
 import 'package:learning_flutter/DBBasics/main.dart'; // *10*
+import 'package:learning_flutter/DBBasics/mainBloc.dart'; // *11*
 */
 
-import 'package:learning_flutter/DBBasics/mainBloc.dart'; // *11*
+import 'package:learning_flutter/authenticator/start.dart'; // *12*
 
 /*
 ********************************************************************************
@@ -111,9 +112,14 @@ void main() {
   runApp(App(userRepository: UserRepository()));
 }
 
-*/
-
 
 //Implementación de una DB con SQLite. Su import es *10* para la forma
 //convencional y *11* para la forma con el patrón BLoC
 void main() => runApp(MaterialApp(home: MyApp()));
+
+*/
+
+//Tercer intento del autenticador con un modelo de datos (para SQLite) que
+// incluye Person, Number y PersonNumber; se sigue el patrón BLoC. Su import es
+// *12*
+void main() => runApp(MaterialApp(home: Start()));

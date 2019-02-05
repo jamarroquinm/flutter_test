@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:learning_flutter/Integracion1/models/login_model.dart';
-import 'package:learning_flutter/Integracion1/blocs/blocs.dart';
+import 'package:learning_flutter/authenticator/blocs/Exports.dart';
+import 'package:learning_flutter/authenticator/models/Exports.dart';
 
 //construye el formulario usando un BlocBuilder para reconstruirlo si hay un
 //nuevo LoginState
@@ -83,7 +83,7 @@ class _LoginFormState extends State<LoginForm> {
 
   _onLoginButtonPressed() {
     _loginBloc.dispatch(LoginButtonPressed(
-      username: _usernameController.text,
+      login: _usernameController.text,
       password: _passwordController.text,
     ));
   }

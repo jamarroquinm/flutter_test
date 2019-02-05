@@ -12,7 +12,7 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
   static Database _database;
   static final int version = 1;
-  static final String dbName = 'Autheticator.db';
+  static final String dbName = 'Authenticator.db';
 
   //si no existe la DB, se invoca el proceso de creación
   Future<Database> get database async {
@@ -115,11 +115,14 @@ class _CreationQueries{
   static final String _personsCreationQuery = 'CREATE TABLE Persons ('
       'id INTEGER PRIMARY KEY,'
       'login TEXT,'
-      'password,'
+      'password TEXT,'
       'names TEXT,'
       'lastName1 TEXT,'
       'lastName2 TEXT,'
-      'birthDate INTEGER,'
+      'birthDate TEXT,'
+      'token TEXT,'
+      'tokenUpdate TEXT,'
+      'contactId INTEGER,'
       'flag INTEGER'
       ')';
 

@@ -1,16 +1,10 @@
 import 'dart:async';
 
-import 'package:learning_flutter/authenticator/models/Number.dart';
 import 'package:learning_flutter/authenticator/backend/Database.dart';
+import 'package:learning_flutter/authenticator/models/Number.dart';
 
 class NumberBloc {
-  final _itemListController = StreamController<List<Number>>.broadcast();
-  final _itemController = StreamController<Number>.broadcast();
-
-  Stream get itemList => _itemListController.stream;
-  Stream get item => _itemController.stream;
-
-  void getItem(String letter) async {
+  Future<Number> getItem(String letter) async {
     String query = 'SELECT * FROM Numbers WHERE letter = "$letter"';
 
     var resultado = await DBProvider.db.getFirstRow(query);
@@ -21,10 +15,11 @@ class NumberBloc {
     } else {
       instance = Number(id: 0);
     }
-    _itemController.sink.add(instance);
+
+    return instance;
   }
 
-  void getItemsList(String letter) async {
+  Future<List<Number>> getItemsList() async {
     String query = 'SELECT * FROM Numbers ORDER BY letter';
 
     var resultado = await DBProvider.db.getRows(query);
@@ -39,11 +34,6 @@ class NumberBloc {
       list = [];
     }
 
-    _itemListController.sink.add(list);
-  }
-
-  void dispose() {
-    _itemListController.close();
-    _itemController.close();
+    return list;
   }
 }

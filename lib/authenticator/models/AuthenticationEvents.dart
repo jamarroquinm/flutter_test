@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
+import 'package:learning_flutter/authenticator/models/Exports.dart';
+
 
 abstract class AuthenticationEvent extends Equatable {
   AuthenticationEvent([List props = const []]) : super(props);
@@ -13,15 +15,15 @@ class AppStarted extends AuthenticationEvent {
 }
 
 
-//Se dispara cuando la autenticación ha sido exitosa para notificar a bloc que
+//Se dispara cuando la autenticación ha sido exitosa para notificar al bloc que
 // el usuario está autenticado
 class LoggedIn extends AuthenticationEvent {
-  final String token;
+  final Person person;
 
-  LoggedIn({@required this.token}) : super([token]);
+  LoggedIn({@required this.person}) : super([person]);
 
   @override
-  String toString() => 'LoggedIn { token: $token }';
+  String toString() => 'LoggedIn { token: ${person.names} ${person.lastName1} ${person.lastName2} }';
 }
 
 

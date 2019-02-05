@@ -1,0 +1,155 @@
+Generalidades
+-------------
+
+En esta aplicación se construye un módulo de autenticación con un un splash para el inicio de la
+misma, un formulario para login y contraseña, un indicador de progreso y una pantalla que sirve de
+home page. Se utiliza SQLite y SharedPreferences y se implementa con el patrón BLoC.
+
+
+Dependencias
+------------
+
+Los siguientes paquetes se han añadido a pubspec.yaml:
+- bloc para implementar el patrón BLoC de una manera más sencilla
+- meta agrega anotaciones como @required
+- equatable sobrescribe las operaciones == y hashCode para comparar objetos
+- sqflite asiste en la gestión de una base de datos SQLite y permite operaciones CRUD con queries
+  explícitos o exponiendo métodos que, a partir de los parámetros recibidos, construyen internamente
+  los queries requeridos.
+- path_provider sirve para ubicar los directorios de más frecuente uso en el
+  filesystem; en el presente ejercicio ubica TemporaryDirectory y
+  ApplicationDocumentsDirectory
+- uuid permite la generación de claves uid
+- intl es un paquete para hacer format y parser a fechas
+- shared_preferences permite manejar repositorios en archivos, es decir mediante NSUserDefaults (iOS)
+  y SharedPreferences (Android)
+
+
+Estructura y archivos
+---------------------
+
+\backend\
+    - Database.dart: Gestora de la base de datos
+    - Exports.dart: Archivo con los exports de esta carpeta
+    - NumberHelper.dart: Define las operaciones CRUD para la tabla Numbers
+    - PersonHelper.dart: Define las operaciones CRUD para la tabla Persons
+    - PersonNumber.dart: Define las operaciones CRUD para la tabla PersonsNumbers
+    - Utils.dart: Funciones auxiliares en general
+
+\blocs\
+    - AuthenticationBloc.dart: Archivo bloc que recibe eventos de autenticación (login exitoso o
+      logout) y actualiza la variable AuthenticationState para que las pantallas que lo estén
+      escuchando gestionen la entrada a la aplicación o el cierre de la sesión
+    - Exports.dart: Archivo con los exports de esta carpeta
+    - LoginBloc: Archivo bloc que gestiona el evento del botón de la pantalla de ingreso (LoginForm)
+      y determina, a partir del usuario y contraseña ingresadas, si la autenticación es posible. Con
+      el resultado actualiza el LoginState; si es exitoso, envía esa actualización como evento a
+      AuthenticationBloc.
+
+\models\
+    - AuthenticationEvents.dart incluye una clase para cada uno de los tres eventos de
+      autenticación que pueden producirse:
+      * AppStarted, se dispara al iniciarse la app para notificar al bloc que debe verificar
+        si hay un usuario autenticado
+      * LoggedIn, se dispara cuando la autenticación ha sido exitosa para notificar al bloc
+        el usuario está autenticado
+      * LoggedOut, se dispara cuando el logout ha sido exitoso para notificar al bloc que el
+        usuario ya no está autenticado
+    - AuthenticationStates.dart incluye una clase para cada uno de los cuatro estados de
+      autenticación posibles:
+      * AuthenticationUninitialized, es el estado inicial de la aplicación, cuando no hay
+        usuario autenticado; podría presentarse un splash al usuario mientras la aplicación
+        determina si está ya autenticado o no
+      * AuthenticationAuthenticated, producido cuando el usuario se autentiticó
+        exitosamente; el usuario entraría al Homepage
+      * AuthenticationUnauthenticated, producido cuando el usuario no tuvo éxito al
+        autenticarse; el usuario permanecería en el Login
+      * AuthenticationLoading, indica que la autenticación inició y está en proceso de
+        resolución; podría presentarse un indicador de avance
+    - Exports.dart: Archivo con los exports de esta carpeta
+    - LoginEvents.dart incluye la clase que modela el único evento de la pantalla de Login, que
+      el clic del botón; dicho evento notifica al bloc que deben validarse las credenciales
+      introducidas, es decir, nombre de usuario y contraseña
+    - LoginStates.dart incluye una clase para cada uno de los tres estados posibles en la
+      pantalla de Login;
+      * LoginInitial, es el estado inicial de la aplicación, cuando no se ha hecho clic en el
+        botón de Login
+      * LoginLoading, producido cuando el usuario hizo clic en el botón y la autenticación
+        está en proceso
+      * LoginFailure, producido cuando la autenticación no tuvo éxito
+    - Number.dart modela un objeto con el mismo nombre, corresponde a la tabla Numbers de la base de
+      datos, con la cual se relaciona mediante NumberHelper
+    - Person.dart modela un objeto con el mismo nombre, corresponde a la tabla Persons de la base de
+      datos, con la cual se relaciona mediante PersonHelper
+    - PersonNumber.dart modela un objeto con el mismo nombre, corresponde a la tabla PersonsNumbers
+      de la base de datos, con la cual se relaciona mediante PersonNumberHelper
+\ui\
+    - Exports.dart: Archivo con los exports de esta carpeta
+    - HomePage.dart es la pantalla de aterrizaje cuando la autenticación fue exitosa; incluye
+      un campo de tipo AuthenticationBloc que es el bloc relacionado para que esta pantalla
+      envíe eventos al bloc y reciba de él estados. Dicho bloc se recupera mediante un
+      BlocProvider
+    - LoadingIndicator.dart simplemente muestra un indicador de avance mediante un CircularProgressIndicator
+    - LoginForm.dart es el formulario de autenticación, dos campos y un botón, que incluye el
+      disparador del evento del clic del botón y el método para mostrar que hubo un error. Este
+      Widget se construye dentro del body de LoginPage por lo que esta clase le define los blocs
+      con los que se relaciona. Su BlocBuilder actualiza el formulario cuando hay un cambio en
+      su LoginState
+    - LoginPage.dart es la pantalla contenedora de LoginForm y además es la pantalla principal. Crea
+      una instancia de LoginBloc y gestiona su dispose
+    - SearchPage.dart... por desarrollar
+    - SelectorPage.dart... por desarrollar
+    - SplashPage.dart es el splash que se muestra mientras al inicio se determina si hay un
+      usuario autenticado o no
+\
+    - notas.txt: este archivo
+    - start.dart: Es el widget de inicio invocado desde main(); inicializa la instancia de
+      AuthenticationBloc, establece AppStarted como evento inicial y abre la pantalla que corresponda
+      a la actualización de AuthenticationState que reciba
+
+
+Persistencia de datos
+---------------------
+
+Se ha modelado la estructura de datos en una instancia de SQLite con tres tablas, que físicamente se
+graban en el archivo Authenticator.db:
+- Person, para representar los datos generales dal usuario registrado así como un token que indica
+si se ha autenticado, y una fecha de actualización de dicho token para verificar su vigencia
+- Number, para el catálogo de cada uno de los números significativos de la numerología; cada uno con
+dos campos de nombre, en español y en inglés, para designarlo en cualquiera de los dos idiomas
+- PersonNumber, para representar los valores que cada uno de los números tiene para un un usuario,
+derivados de la fecha de nacimiento de éste
+
+Los datos recuperados de cada una de las tres tablas se mapean a una clase con nombre equivalente,
+en tanto que las operaciones CRUD las realizan tres clases helper que corresponden a las tablas en
+la base de datos.
+
+Para mantener las sesiones se usa una combinación de dos elementos:
+- Un token guardado en la base de datos que se genera cuando se da de alta un usuario o cuando éste
+se loguea. En cualquier momento dado solo un usuario tiene token, lo cual indica que es el último en
+autenticarse
+- El id del último usuario activo, siempre que no haya hecho logout, grabado directamente en
+NSUserDefaults/SharedPreferences. Al abrirse la aplicación se busca ese id; si existe se autentica
+automáticamente dicho usuario y entra al home page
+
+
+
+Operaciones CRUD
+----------------
+
+Create. Se utiliza rawInsert para inyectar un query explícito e insert para dejar que sqflite arme
+el query a partir del nombre de la tabla y el map de un objeto que coincide con la estructura de la
+tabla.
+
+Read. Se usa rawQuery para inyectar un query explícito y query para dejar que sqflite arme el query;
+este último método puede recibir simplemente el nombre de la tabla o también aceptar, además, una
+sentencia where y un arreglo de argumentos en el parámetro whereArgs. Otros parámetros del método
+query son: distinct, columns, groupBy, having, orderBy, limit y offset.
+
+Update. El método rawUpdate permite usar un query explícito y opcionalmente una lista de argumentos,
+mientras que el método update construye el query a partir del nombre de la tabla, un objeto que se
+mapea a los campos de la tabla y, opcionalmente, una sentencia where y argumentos para ese where.
+
+Delete. El método rawDelete permite usar un query explícito y opcionalmente una lista de argumentos,
+mientras que el método delete construye el query a partir del nombre de la tabla y, opcionalmente,
+una sentencia where y argumentos para ese where.
