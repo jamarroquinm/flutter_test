@@ -26,7 +26,10 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0, left: 8.0),
             child: Text(
-              'Usuario: ${_person.names} ${_person.lastName1} ${_person.lastName1} ${_person.lastName2}',
+              'Usuario: ${_person.firstName1} '
+                  '${_person.firstName2} '
+                  '${_person.lastName1} '
+                  '${_person.lastName2}',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

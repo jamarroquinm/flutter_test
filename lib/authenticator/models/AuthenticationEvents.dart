@@ -23,7 +23,8 @@ class LoggedIn extends AuthenticationEvent {
   LoggedIn({@required this.person}) : super([person]);
 
   @override
-  String toString() => 'LoggedIn { token: ${person.names} ${person.lastName1} ${person.lastName2} }';
+  String toString() => 'LoggedIn { token: ${person.firstName1} '
+      '${person.firstName2} ${person.lastName1} ${person.lastName2} }';
 }
 
 

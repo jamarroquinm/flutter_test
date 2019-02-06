@@ -29,7 +29,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       try {
         final Person varPerson = await PersonHelper().getItem(
-            login: event.login,
+            userName: event.userName,
             password: event.password
         );
 
@@ -44,6 +44,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       } catch (error) {
         yield LoginFailure(error: error.toString());
+        print(error.toString());
       }
     }
   }

@@ -1,0 +1,55 @@
+Objetivo
+--------
+
+Extender el módulo actual
+    Start   SplashPage
+            LoadingIndicator
+            LoginPage   LoginForm
+            HomePage
+a la siguiente estructura
+    App     SplashPage
+            LoadingIndicator
+            LoginRegister   LoginForm
+                            RegisterForm
+            Main    HomePage
+                    UpdateForm
+                    ContactsPage
+                    ContactDetailPage
+                    ContactForm
+                    Menu
+Agregando el control de eventos y estados para lo siguiente:
+    LoginForm
+        Botón autenticación
+        Botón ir a registro
+    RegisterForm
+        Botón registro
+        Botón ir a autenticación
+    Menú
+        Elegir ítem Mis datos (ir a UpdateForm)
+        Elegir ítem Mis contactos (ir a ContactsPage)
+        Elegir ítem Principal (ir a HomePage)
+        Elegir ítem Cerrar sesión (ir a LoginForm)
+    ContactsPage
+        Elegir ítem en lista de contactos (ir a ContactDetailPage)
+    ContactDetailPage
+        Botón editar contacto
+    ContactForm
+        Botón grabar datos de contacto
+    UpdateForm
+        Botón actualizar mis datos
+
+
+Blocs
+-----
+
+AuthenticationBloc
+    - Es el bloc más global para controlar la sesión del usuario
+    - Inicializado en main() y pasado como parámetro a App, wl widget principal
+    - Eventos AuthenticationEvent que recibe:
+        * AppStarted, al iniciar la aplicación
+        * LoggedIn, al iniciar exitosamente la sesión, tras loguearse o registrarse
+        * LoggedOut, al cerrar la sesión
+    - Estados AuthenticationState que devuelve:
+        * AuthenticationAuthenticated, sesión iniciada
+        * AuthenticationUnauthenticated, sesión no iniciada
+        * AuthenticationLoading, transición de los dos estados anteriores al otro

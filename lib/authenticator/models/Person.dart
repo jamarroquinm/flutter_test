@@ -14,9 +14,10 @@ String clientToJson(Person data) {
 
 class Person {
   int id;
-  String login;
+  String userName;
   String password;
-  String names;
+  String firstName1;
+  String firstName2;
   String lastName1;
   String lastName2;
   DateTime birthDate;
@@ -27,9 +28,10 @@ class Person {
 
   Person({
     this.id,
-    this.login,
+    this.userName = '',
     this.password,
-    this.names,
+    this.firstName1 = '',
+    this.firstName2,
     this.lastName1,
     this.lastName2,
     this.birthDate,
@@ -41,9 +43,10 @@ class Person {
 
   factory Person.fromMap(Map<String, dynamic> json) => Person(
     contactId: json["contactId"],
-    login: json["login"],
+    userName: json["userName"],
     password: json["password"],
-    names: json["names"],
+    firstName1: json["firstName1"],
+    firstName2: json["firstName2"],
     lastName1: json["lastName1"],
     lastName2: json["lastName2"],
     birthDate: iso8601ToDateTime(json["birthDate"]),
@@ -55,9 +58,10 @@ class Person {
 
   Map<String, dynamic> toMap() => {
     "id": id,
-    "login": login,
+    "userName": userName,
     "password": password,
-    "names": names,
+    "firstName1": firstName1,
+    "firstName2": firstName2,
     "lastName1": lastName1,
     "lastName2": lastName2,
     "birthDate": birthDate,
@@ -66,34 +70,4 @@ class Person {
     "contactId": contactId,
     "flag": flag,
   };
-
-  /*
-  Future<String> authenticate({
-    @required String username,
-    @required String password,
-  }) async {
-      PersonBloc personBloc = PersonBloc();
-
-      await Future.delayed(Duration(seconds: 1));
-      return 'token';
-    }
-
-  Future<void> deleteToken() async {
-    //borrar token al hacer logout
-    await Future.delayed(Duration(seconds: 1));
-    return;
-  }
-
-  Future<void> persistToken(String token) async {
-    //éste método podría borrarse
-    await Future.delayed(Duration(seconds: 1));
-    return;
-  }
-
-  Future<bool> hasToken() async {
-    //validar que el usuario actual tenga un token vigente
-    await Future.delayed(Duration(seconds: 1));
-    return false;
-  }
-  */
 }

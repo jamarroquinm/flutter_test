@@ -10,15 +10,15 @@ abstract class LoginEvent extends Equatable {
 //el único evento es el clic del botón, que notifica a bloc que deben validarse
 //las credenciales introducidas por el usuario
 class LoginButtonPressed extends LoginEvent {
-  final String login;
+  final String userName;
   final String password;
 
   LoginButtonPressed({
-    @required this.login,
+    @required this.userName,
     @required this.password,
-  }) : super([login, password]);
+  }) : super([userName, password]);
 
   @override
   String toString() =>
-      'LoginButtonPressed { username: $login, password: $password }';
+      'LoginButtonPressed { username: $userName, password: $password }';
 }

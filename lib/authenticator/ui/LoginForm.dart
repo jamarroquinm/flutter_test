@@ -10,12 +10,10 @@ import 'package:learning_flutter/authenticator/models/Exports.dart';
 //con un API más simple
 class LoginForm extends StatefulWidget {
   final LoginBloc loginBloc;
-  final AuthenticationBloc authenticationBloc;
 
   LoginForm({
     Key key,
     @required this.loginBloc,
-    @required this.authenticationBloc,
   }) : super(key: key);
 
   @override
@@ -48,27 +46,30 @@ class _LoginFormState extends State<LoginForm> {
         }
 
         return Form(
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'username'),
-                controller: _usernameController,
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'password'),
-                controller: _passwordController,
-                obscureText: true,
-              ),
-              RaisedButton(
-                onPressed:
-                state is! LoginLoading ? _onLoginButtonPressed : null,
-                child: Text('Login'),
-              ),
-              Container(
-                child:
-                state is LoginLoading ? CircularProgressIndicator() : null,
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'username'),
+                  controller: _usernameController,
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'password'),
+                  controller: _passwordController,
+                  obscureText: true,
+                ),
+                RaisedButton(
+                  onPressed:
+                  state is! LoginLoading ? _onLoginButtonPressed : null,
+                  child: Text('Login'),
+                ),
+                Container(
+                  child:
+                  state is LoginLoading ? CircularProgressIndicator() : null,
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -83,7 +84,7 @@ class _LoginFormState extends State<LoginForm> {
 
   _onLoginButtonPressed() {
     _loginBloc.dispatch(LoginButtonPressed(
-      login: _usernameController.text,
+      userName: _usernameController.text,
       password: _passwordController.text,
     ));
   }

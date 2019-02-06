@@ -36,7 +36,7 @@ class PersonNumberBloc {
 
   Future<int> update(PersonNumber item) async {
     String query = 'UPDATE PersonsNumbers SET'
-        'value = "${item.value}",'
+        'value = "${item.value}" '
         'WHERE personId = ${item.personId} AND numberId = ${item.numberId})';
 
     int affectedRows = await DBProvider.db.update(query);
@@ -77,8 +77,8 @@ class PersonNumberBloc {
   }
 
   Future<List<PersonNumber>> getItemsList(int personId) async {
-    String query = 'SELECT * FROM PersonsNumbers WHERE personId = $personId'
-        ' ORDER BY numberId';
+    String query = 'SELECT * FROM PersonsNumbers WHERE personId = $personId '
+        'ORDER BY numberId';
 
     var resultado = await DBProvider.db.getRows(query);
 

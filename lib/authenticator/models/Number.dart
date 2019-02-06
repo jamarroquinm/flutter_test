@@ -13,27 +13,35 @@ String toJson(Number data) {
 class Number {
   int id;
   String letter;
-  String esLabel;
-  String enLabel;
+  String esName;
+  String esDescription;
+  String enName;
+  String enDescription;
 
   Number({
     this.id,
     this.letter = '',
-    this.esLabel = '',
-    this.enLabel = '',
+    this.esName = '',
+    this.esDescription = '',
+    this.enName = '',
+    this.enDescription = '',
   });
 
   factory Number.fromMap(Map<String, dynamic> json) => Number(
     id: json["id"],
     letter: json["letter"],
-    esLabel: json["esLabel"],
-    enLabel: json["enLabel"],
+    esName: json["esName"],
+    esDescription: json["esDescription"],
+    enName: json["enName"],
+    enDescription: json["enDescription"],
   );
 
   Map<String, dynamic> toMap() => {
     "id": id,
     "letter": letter,
-    "esLabel": esLabel,
-    "enLabel": enLabel,
+    "esName": esName,
+    "esDescription": esDescription,
+    "enName": enName,
+    "enDescription": enDescription,
   };
 }

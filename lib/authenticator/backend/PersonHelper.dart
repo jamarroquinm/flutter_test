@@ -8,27 +8,28 @@ import 'package:learning_flutter/authenticator/models/Person.dart';
 
 class PersonHelper {
 
-  //con login se agrega un usuario; sin ese dato se trata solo de un contacto
+  //con userName se agrega un usuario; sin ese dato se trata solo de un contacto
   //del usuario logueado
   Future<Person> add(Person item) async {
     String query = 'INSERT INTO Persons VALUES('
         '${item.id},'
-        '"${item.login}",'
+        '"${item.userName}",'
         '"${item.password}",'
-        '"${item.names}",'
+        '"${item.firstName1}",'
+        '${item.firstName2 == null ? null : '\"${item.firstName2}\"'},'
         '"${item.lastName1}",'
-        '"${item.lastName2}",'
+        '${item.lastName2 == null ? null : '\"${item.lastName2}\"'},'
         '"${dateTimeToIso8601(item.birthDate)}",'
-        '"${item.token}",'
-        '"${dateTimeToIso8601(item.tokenUpdate)}",'
-        '${item.contactId},'
-        '${item.flag})';
+        '${item.token == null ? null : '\"${item.token}\"'},'
+        '${item.tokenUpdate == null ? null : '\"${item.tokenUpdate}\"'},'
+        '${item.contactId ?? 0},'
+        '${item.flag == null ? 0 : item.flag ? 1 : 0})';
 
     int lastId = await DBProvider.db.add(query);
 
     Person newInstance;
     if(lastId > 0){
-      if(item.login != null && item.login != ''){
+      if(item.userName != null && item.userName != ''){
         item.token = Uuid().v1();
         item.tokenUpdate = DateTime.now();
 
@@ -46,14 +47,16 @@ class PersonHelper {
   Future<int> update(Person item) async {
     String query = 'UPDATE Persons SET '
         'password = "${item.password}",'
-        'names = "${item.names}",'
+        'firstName1 = "${item.firstName1}",'
+        'firstName2 = ${item.firstName2 == null ? null : '\"${item.firstName2}\"'},'
         'lastName1 = "${item.lastName1}",'
-        'lastName2 = "${item.lastName2}",'
+        'lastName2 = ${item.lastName2 == null ? null : '\"${item.lastName2}\"'},'
         'birthDate = "${dateTimeToIso8601(item.birthDate)}",'
-        'token = ${item.token},'
-        'tokenUpdate = "${dateTimeToIso8601(item.tokenUpdate)}",'
-        'flag = ${item.flag}'
-        'WHERE id = ${item.id})';
+        'token = ${item.token == null ? null : '\"${item.token}\"'},'
+        'tokenUpdate = ${item.tokenUpdate == null ? null : '\"${dateTimeToIso8601(item.tokenUpdate)}\"'},'
+        'contactId = ${item.contactId ?? 0},'
+        'flag = ${item.flag == null ? 0 : item.flag ? 1 : 0} '
+        'WHERE id = ${item.id}';
 
     int affectedRows = await DBProvider.db.update(query);
 
@@ -90,9 +93,9 @@ class PersonHelper {
 
   //para autenticarse con usuario y contraseña; en caso de éxito se actualiza
   //el token y su fecha (para resetear su vigencia)
-  Future<Person> getItem({@required String login, @required String password}) async {
+  Future<Person> getItem({@required String userName, @required String password}) async {
     String query = 'SELECT * FROM Persons '
-        'WHERE login = "$login" AND password = "$password"';
+        'WHERE userName = "$userName" AND password = "$password"';
 
     var resultado = await DBProvider.db.getFirstRow(query);
 
@@ -133,7 +136,7 @@ class PersonHelper {
 
   //recupera las personas registradas como contacto del usuario logueado
   Future<List<Person>> getContacts(int id) async {
-    String query = 'SELECT * FROM Persons WHERE contactID = "$id" ORDER BY names';
+    String query = 'SELECT * FROM Persons WHERE contactID = "$id" ORDER BY firstName1';
 
     var resultado = await DBProvider.db.getRows(query);
 
@@ -155,7 +158,7 @@ class PersonHelper {
   }
 
   Future<void> _closeAllSessions({int personId = 0}) async {
-    String query = 'UPDATE Persons SET token = "", tokenUpdate = "$defaultStrDateTime,"';
+    String query = 'UPDATE Persons SET token = null, tokenUpdate = null';
     int affectedRows = await DBProvider.db.update(query);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();

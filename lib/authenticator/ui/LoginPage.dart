@@ -33,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('Login'),
       ),
       body: LoginForm(
-        authenticationBloc: _authenticationBloc,
         loginBloc: _loginBloc,
       ),
     );
