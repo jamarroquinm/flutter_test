@@ -1,0 +1,3 @@
+enum PartnerType{
+  contact, group
+}

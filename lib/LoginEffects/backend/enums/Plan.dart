@@ -1,0 +1,3 @@
+enum Plan{
+  free, premium,
+}

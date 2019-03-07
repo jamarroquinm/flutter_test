@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:learning_flutter/authenticator/backend/Database.dart';
 import 'package:learning_flutter/authenticator/models/Number.dart';
 
-class NumberBloc {
+class NumberHelper {
   Future<Number> getItem(String letter) async {
     String query = 'SELECT * FROM Numbers WHERE letter = "$letter"';
 

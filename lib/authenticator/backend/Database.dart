@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'CatalogDataTest.dart' as test;
 
 //un singleton para recuperar siempre la misma instancia de la DB
-class DBProvider {
+class DBProvider with _CreationQueries{
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
@@ -80,10 +80,10 @@ class DBProvider {
   //las listas de queries que deben ejecutarse
   void _executeCreation(Database db, bool includeDrops) async {
     if(includeDrops){
-      _CreationQueries.getDropQueries().forEach((q) => _executeCreationAux(db, q));
+      getDropQueries().forEach((q) => _executeCreationAux(db, q));
     }
-    _CreationQueries.getCreationQueries().forEach((q) => _executeCreationAux(db, q));
-    _CreationQueries.getInsertionQueries().forEach((q) => _executeCreationAux(db, q));
+    getCreationQueries().forEach((q) => _executeCreationAux(db, q));
+    getInsertionQueries().forEach((q) => _executeCreationAux(db, q));
   }
 
   //se ejecuta por cada query de los loops de _executeCreation()
@@ -135,7 +135,7 @@ class DBProvider {
 
 
 class _CreationQueries{
-  static final String _personsCreationQuery =
+  final String _personsCreationQuery =
       'CREATE TABLE IF NOT EXISTS Persons ('
       'id INTEGER PRIMARY KEY,'
       'userName TEXT not null,'
@@ -151,10 +151,10 @@ class _CreationQueries{
       'flag INTEGER'
       ')';
 
-  static final String _personsDropQuery = 'DROP TABLE IF EXISTS Persons';
+  final String _personsDropQuery = 'DROP TABLE IF EXISTS Persons';
 
 
-  static final String _numbersCreationQuery = 'CREATE TABLE Numbers ('
+  final String _numbersCreationQuery = 'CREATE TABLE Numbers ('
       'id INTEGER PRIMARY KEY,'
       'letter TEXT not null,'
       'esName TEXT,'
@@ -163,10 +163,10 @@ class _CreationQueries{
       'enDescription TEXT'
       ')';
 
-  static final String _numbersDropQuery = 'DROP TABLE IF EXISTS Numbers';
+  final String _numbersDropQuery = 'DROP TABLE IF EXISTS Numbers';
 
 
-  static final String _personsNumbersCreationQuery = 'CREATE TABLE PersonsNumbers ('
+  final String _personsNumbersCreationQuery = 'CREATE TABLE PersonsNumbers ('
       'personId INTEGER not null,'
       'numberId INTEGER not null,'
       'value INTEGER not null,'
@@ -175,10 +175,10 @@ class _CreationQueries{
       'PRIMARY KEY (personId, numberId)'
       ')';
 
-  static final String _personsNumbersDropQuery = 'DROP TABLE IF EXISTS PersonsNumbers';
+  final String _personsNumbersDropQuery = 'DROP TABLE IF EXISTS PersonsNumbers';
 
 
-  static final List<String> _numbersInsertionQuery =
+  final List<String> _numbersInsertionQuery =
       ['INSERT INTO Numbers VALUES(1, "A", '
           '"Número del karma", "Día de nacimiento", '
           '"Karma number", "Day of birth")',
@@ -260,7 +260,7 @@ class _CreationQueries{
       ];
 
 
-  static List<String> getCreationQueries(){
+  List<String> getCreationQueries(){
     return [
       _personsCreationQuery,
       _numbersCreationQuery,
@@ -268,7 +268,7 @@ class _CreationQueries{
     ];
   }
 
-  static List<String> getDropQueries(){
+  List<String> getDropQueries(){
     return [
       _personsNumbersDropQuery,
       _numbersDropQuery,
@@ -276,7 +276,7 @@ class _CreationQueries{
     ];
   }
 
-  static List<String> getInsertionQueries(){
+  List<String> getInsertionQueries(){
     List<String> queries = [];
     queries.addAll(_numbersInsertionQuery);
     queries.addAll(test.CatalogDataTest.personsInsertionQuery);
