@@ -12,19 +12,22 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     int month = 2;
     int year = 2019;
+    Map<DateTime, Color> highlightedDates = {
+      DateTime(2019, 2, 3) : Colors.lime,
+      DateTime(2019, 2, 3) : Colors.lime,
+      DateTime(2019, 2, 25) : Colors.yellow,
+      DateTime(2019, 3, 3) : Colors.lime,
+    };
+
+
     Offset _tapPosition;
-    CalendarPainter painter = CalendarPainter(month: month, year: year);
-
-    GestureDetector touch = GestureDetector(
-      onTapUp: selectDate,
-      child: Container(height: 300,),
-    );
-
 
     void _handleTapDown(TapDownDetails details) {
       final RenderBox referenceBox = context.findRenderObject();
       setState(() {
         _tapPosition = referenceBox.globalToLocal(details.globalPosition);
+        print('${_tapPosition.dx}, ${_tapPosition.dy}');
+
       });
     }
 
@@ -33,21 +36,40 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: Text("Calendario")),
         body: Padding(
           padding: EdgeInsets.all(8.0),
-          child: CustomPaint(
-            child: touch,
-            painter: painter,
+          child: Column(
+            children: <Widget>[
+/*
+              GestureDetector(
+                onTapUp: selectDate,
+                child: CustomPaint(
+                  child: Container(height: 200,),
+                  painter: CalendarPainter(month: month + 1, year: year),
+                ),
+              ),
+*/
+              CustomPaint(
+                child: Container(height: 200,),
+                painter: CalendarPainter(
+                  month: month,
+                  year: year,
+                  selectionCallback: selectDate,
+                  highlightedDates: highlightedDates,
+                  backgroundColor: Colors.purple,
+                  daysNameFillColor: Colors.deepPurpleAccent,
+                  daysNameTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  daysTextStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
+
         ),
       ),
     );
   }
 
-  void selectDate(TapUpDetails position) {
-    print('${position.globalPosition.dx}, ${position.globalPosition.dy}');
-/*
-      painter.select(Offset(
-          position.globalPosition.dx - 16.0, position.globalPosition.dy - 247.0));
-*/
+  void selectDate(int selectedDay) {
+    print('Home: día elegido=$selectedDay');
   }
 
 
