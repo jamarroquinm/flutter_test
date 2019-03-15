@@ -15,9 +15,10 @@ import 'package:learning_flutter/Integracion1/models/UserRepository.dart';      
 import 'package:learning_flutter/DBBasics/main.dart'; // *10*
 import 'package:learning_flutter/DBBasics/mainBloc.dart'; // *11*
 import 'package:learning_flutter/authenticator/start.dart'; // *12*
-*/
 import 'package:learning_flutter/Calendar/Home.dart'; // *13*
+*/
 
+import 'package:learning_flutter/Webservices/WebserviceUI.dart'; // *14*
 
 /*
 ********************************************************************************
@@ -127,5 +128,11 @@ void main() => runApp(MaterialApp(home: MyApp()));
 void main() => runApp(MaterialApp(home: Start()));
 */
 
+/*
+//prueba del calendario custom; su import es *13*
 void main() => runApp(MyApp());
+*/
 
+
+//prueba de serialización/deserialización de webservices
+void main() => runApp(WebserviceUI());
