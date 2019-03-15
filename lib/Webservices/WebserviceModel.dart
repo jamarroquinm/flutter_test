@@ -116,3 +116,56 @@ class WebserviceModel{
   Map<String, dynamic> toJson() => _$WebserviceModelToJson(this);
 
 }*/
+
+
+//------------------------------------------------------------
+class Device{
+  final String brand;
+  final String model;
+  final String type;
+  final String os;
+  final String version;
+  final String language;
+
+  Device({
+    this.brand,
+    this.model,
+    this.type,
+    this.os,
+    this.version,
+    this.language,
+  });
+
+  Map<String, dynamic> toMap(Map<String, dynamic> initialMap) {
+    Map<String, dynamic> finalMap = {};
+
+    if(initialMap != null){
+      finalMap.addAll(initialMap);
+    }
+
+    finalMap["marca"] = brand;
+    finalMap["modelo"] = model;
+    finalMap["tipo"] = type;
+    finalMap["so"] = os;
+    finalMap["version"] = version;
+    finalMap["idioma"] = language;
+
+    return finalMap;
+  }
+}
+
+class Person{
+  Person();
+
+  Map<String, dynamic> toMap(Map<String, dynamic> initialMap) {
+    Map<String, dynamic> finalMap = {};
+
+    if(initialMap != null){
+      finalMap.addAll(initialMap);
+    }
+
+    return finalMap;
+  }
+}
+
+//------------------------------------------------------------

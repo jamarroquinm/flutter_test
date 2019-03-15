@@ -10,14 +10,14 @@ abstract class ResponseBase{
   Descarga de catálogos, cambio de password, eliminación de foto, contacto,
   grupo o entidad
  */
-class GeneralResult extends ResponseBase{
-  GeneralResult({
+class BasicResponse extends ResponseBase{
+  BasicResponse({
     success,
     error,
     errorInfo,
   }) : super(success: success, error: error, errorInfo: errorInfo);
 
-  factory GeneralResult.fromJson(Map<String, dynamic> jsonMap) => GeneralResult(
+  factory BasicResponse.fromJson(Map<String, dynamic> jsonMap) => BasicResponse(
     success: jsonMap["success"],
     error: jsonMap["error"],
     errorInfo: jsonMap["errorInfo"],
@@ -38,7 +38,83 @@ class GeneralResult extends ResponseBase{
   T=string
     registra device
  */
-//
+//------------------------------------------------------------
+class ValidatorBoolResponse extends ResponseBase{
+  final DataBoolResponse data;
+
+  ValidatorBoolResponse({
+    success,
+    error,
+    errorInfo,
+    this.data
+  }) : super(success: success, error: error, errorInfo: errorInfo);
+
+
+  factory ValidatorBoolResponse.fromJson(Map<String, dynamic> jsonMap, String attributeName) {
+    Map<String, dynamic> innerJsonMap;
+    DataBoolResponse data;
+    try{
+      innerJsonMap = jsonMap['data'];
+      data = DataBoolResponse.fromJson(innerJsonMap, attributeName);
+    } catch(ex){
+      data = null;
+    }
+
+    return ValidatorBoolResponse(
+      success: jsonMap["success"],
+      error: jsonMap["error"],
+      errorInfo: jsonMap["errorInfo"],
+      data: data,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    "success": success,
+    "error": error,
+    "errorInfo": errorInfo,
+    "data": data,
+  };
+}
+
+class ValidatorStringResponse extends ResponseBase{
+  final DataStringResponse data;
+
+  ValidatorStringResponse({
+    success,
+    error,
+    errorInfo,
+    this.data
+  }) : super(success: success, error: error, errorInfo: errorInfo);
+
+
+  factory ValidatorStringResponse.fromJson(Map<String, dynamic> jsonMap, String attributeName) {
+    Map<String, dynamic> innerJsonMap;
+    DataStringResponse data;
+    try{
+      innerJsonMap = jsonMap['data'];
+      data = DataStringResponse.fromJson(innerJsonMap, attributeName);
+    } catch(ex){
+      data = null;
+    }
+
+    return ValidatorStringResponse(
+      success: jsonMap["success"],
+      error: jsonMap["error"],
+      errorInfo: jsonMap["errorInfo"],
+      data: data,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    "success": success,
+    "error": error,
+    "errorInfo": errorInfo,
+    "data": data,
+  };
+}
+//------------------------------------------------------------
+
+
 class Validator<T> extends ResponseBase{
   final DataResponse<T> data;
 
@@ -64,6 +140,7 @@ class Validator<T> extends ResponseBase{
       success: jsonMap["success"],
       error: jsonMap["error"],
       errorInfo: jsonMap["errorInfo"],
+      data: data,
     );
   }
 
@@ -219,6 +296,41 @@ class GroupMemberRemover extends ResponseBase{
     this.pinnacle,
   }) : super(success: success, error: error, errorInfo: errorInfo);
 }
+
+
+//------------------------------------------------------------
+class DataBoolResponse{
+  final bool attribute;
+
+  DataBoolResponse({this.attribute});
+
+  factory DataBoolResponse.fromJson(Map<String, dynamic> jsonMap,
+      String attributeName) => DataBoolResponse(
+    attribute: jsonMap[attributeName],
+  );
+
+  Map<String, dynamic> toMap(String attributeName) => {
+    attributeName: attribute,
+  };
+}
+
+class DataStringResponse{
+  final String attribute;
+
+  DataStringResponse({this.attribute});
+
+  factory DataStringResponse.fromJson(Map<String, dynamic> jsonMap,
+      String attributeName) => DataStringResponse(
+    attribute: jsonMap[attributeName],
+  );
+
+  Map<String, dynamic> toMap(String attributeName) => {
+    attributeName: attribute,
+  };
+}
+//------------------------------------------------------------
+
+
 
 
 //todo poner los nombres de campos en el json como está en el api

@@ -3,6 +3,7 @@ GlobalData appInstance = GlobalData._private();
 class GlobalData{
   bool flag;
   String _urlRoot;
+  String _operationTag;
   String _validationPage;
   String _emailValidationOperation;
   String _phoneValidationOperation;
@@ -57,6 +58,7 @@ class GlobalData{
 
   void _setWebServicesSettings(){
     _urlRoot = 'http://18.188.38.108/numera/mws/app/';
+    _operationTag = 'operacion';
 
     _validationPage = 'valida.php';
     _emailValidationOperation = 'correo';
@@ -113,6 +115,7 @@ class GlobalData{
   }
 
   String get urlRoot => _urlRoot;
+  String get operationTag => _operationTag;
   String get validationPage => _validationPage;
   String get emailValidationOperation => _emailValidationOperation;
   String get phoneValidationOperation => _phoneValidationOperation;
