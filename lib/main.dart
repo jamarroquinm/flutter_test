@@ -17,9 +17,11 @@ import 'package:learning_flutter/DBBasics/mainBloc.dart'; // *11*
 import 'package:learning_flutter/authenticator/start.dart'; // *12*
 import 'package:learning_flutter/Calendar/Home.dart'; // *13*
 import 'package:learning_flutter/Webservices/WebserviceUI.dart'; // *14*
+import 'package:learning_flutter/Operaciones/Pantalla.dart';  // *15*
 */
 
-import 'package:learning_flutter/Operaciones/Pantalla.dart';  // *15*
+import 'tutti/PlayingWithImages.dart';  // *16*
+
 /*
 ********************************************************************************
 El proyecto actual incluye varias pequeñas aplicaciones de aprendizaje, las
@@ -139,5 +141,10 @@ void main() => runApp(MyApp());
 void main() => runApp(WebserviceUI());
 */
 
-//prueba de serialización/deserialización de webservices
+/*
+//prueba de serialización/deserialización de webservices; su import es *15*
 void main() => runApp(Pantalla());
+*/
+
+//prueba de displey de imagen a partir de base64; su import es *16*
+void main() => runApp(PlayingWithImages());
